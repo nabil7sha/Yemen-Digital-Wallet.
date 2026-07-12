@@ -1,0 +1,16 @@
+# Django Files
+*.log
+local_settings.py
+db.sqlite3
+nabil.sqlite3
+__pycache__/
+*.pyc
+
+# Environment Files
+.venv/
+venv/
+env/
+ENV/
+
+# VS Code Files
+.vscode/
