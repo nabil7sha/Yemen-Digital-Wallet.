@@ -6,15 +6,12 @@
     <title>NSB Wallet - لوحة التحكم المالي للعملاء</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- استخدام Tailwind CSS للتصميم العصري -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        cairo: ['Cairo', 'sans-serif'],
-                    },
+                    fontFamily: { cairo: ['Cairo', 'sans-serif'] },
                     colors: {
                         wallet: {
                             primary: '#0b57d0',
@@ -30,9 +27,7 @@
         }
     </script>
     <style>
-        body {
-            font-family: 'Cairo', sans-serif;
-        }
+        body { font-family: 'Cairo', sans-serif; }
         .glass-panel {
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(12px);
@@ -50,26 +45,25 @@
                     <i class="fa-solid fa-wallet text-2xl"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">محفظة nabil الرقمية للعملاء</h1>
-                    <p class="text-xs text-slate-500 font-medium">بوابة العمليات المالية والتحويلات الحية المباشرة</p>
+                    <!-- رندرة اسم المستخدم والبريد حركياً من الـ Context المباشر للسيرفر -->
+                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">محفظة {{ active_user.username }} الرقمية</h1>
+                    <p class="text-xs text-slate-500 font-medium">البريد الإلكتروني المسجل: {{ active_user.email }}</p>
                 </div>
             </div>
 
-            <!-- منتقي المستخدمين النشطين حياً في nabil.sqlite3 وضبط مسار السيرفر -->
             <div class="flex items-center flex-wrap gap-4 justify-center">
-                <!-- اختيار العميل النشط فوراً لتغيير البيانات -->
+                <!-- منتقي مستخدمين حي: يقوم بإعادة تحميل الصفحة وتغيير الرندرة مع الـ Context تلقائياً -->
                 <div class="bg-slate-100 p-1.5 rounded-xl flex items-center border border-slate-200 text-xs gap-1.5">
                     <span class="text-slate-500 font-bold px-1">العميل الحالي:</span>
-                    <select id="active-user-selector" onchange="changeActiveUser()" class="bg-white rounded-lg px-3 py-1 font-bold text-blue-600 focus:outline-none cursor-pointer border border-slate-200">
-                        <option value="nabil">نبيل (nabil)</option>
-                        <option value="ahmed">أحمد (ahmed)</option>
-                        <option value="yasmin">ياسمين (yasmin)</option>
+                    <select id="active-user-selector" onchange="location.href='?username=' + this.value" class="bg-white rounded-lg px-3 py-1 font-bold text-blue-600 focus:outline-none cursor-pointer border border-slate-200">
+                        {% for u in all_users %}
+                        <option value="{{ u.username }}" {% if u.username == active_user.username %}selected{% endif %}>{{ u.username }}</option>
+                        {% endfor %}
                     </select>
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <input id="api-base-url" type="text" value="http://127.0.0.1:8000/api" class="px-3 py-1.5 text-xs rounded-xl border border-slate-200 font-mono w-44 focus:outline-none focus:ring-1 focus:ring-blue-500 text-left" placeholder="رابط الـ API" onchange="loadDashboardData()">
-                    <button onclick="loadDashboardData()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-xl text-xs font-bold transition-colors shadow-sm">
+                    <button onclick="location.reload()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-xl text-xs font-bold transition-colors shadow-sm">
                         <i class="fa-solid fa-sync"></i> تحديث حركي
                     </button>
                 </div>
@@ -79,27 +73,26 @@
 
     <main class="max-w-7xl mx-auto px-4 lg:px-8 py-6 space-y-6">
 
-        <!-- مؤشر مراقبة حالة الاتصال مع nabil.sqlite3 للعميل الحالي -->
         <div class="bg-slate-900 text-slate-300 p-3.5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-2 font-mono text-xs border border-slate-800 shadow-inner">
             <div class="flex items-center gap-2">
-                <span class="bg-blue-500 text-white px-2 py-0.5 rounded font-bold text-[10px]">ACTIVE</span>
-                <span class="text-slate-400">حساب العميل المستعلم: <strong id="debug-username-display" class="text-blue-400">nabil</strong></span>
+                <span class="bg-emerald-500 text-white px-2 py-0.5 rounded font-bold text-[10px]">SERVER RENDERED</span>
+                <span class="text-slate-400">حالة العرض: <strong class="text-blue-400">رندرة مباشرة مع الـ Context (نشط)</strong></span>
             </div>
             <div>
-                <span id="connection-status-badge" class="inline-flex items-center gap-1.5 text-amber-500 font-bold">
-                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span> جاري قراءة الأرصدة الحية من قاعدة البيانات...
+                <span class="inline-flex items-center gap-1.5 text-emerald-400 font-bold">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span> تم توليد الصفحة بالكامل داخل خادم Django بنجاح!
                 </span>
             </div>
         </div>
 
-        <!-- شبكة الأرصدة والسيولة للعملات الأربعة المتوفرة في nabil.sqlite3 -->
+        <!-- عرض أرصدة العملات الأربعة حياً ومباشرة من الـ Context الممرر -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <!-- كرت رصيد الدولار USD -->
             <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all flex items-center justify-between">
                 <div class="space-y-1">
                     <span class="text-slate-400 text-xs font-bold uppercase">دولار أمريكي (USD)</span>
                     <div class="flex items-baseline gap-1">
-                        <span id="balance-usd" class="text-2xl font-black text-slate-900">0.00</span>
+                        <span class="text-2xl font-black text-slate-900">{{ usd_balance|floatformat:2 }}</span>
                         <span class="text-slate-400 text-xs font-bold">$</span>
                     </div>
                 </div>
@@ -113,7 +106,7 @@
                 <div class="space-y-1">
                     <span class="text-slate-400 text-xs font-bold uppercase">ريال سعودي (SAR)</span>
                     <div class="flex items-baseline gap-1">
-                        <span id="balance-sar" class="text-2xl font-black text-slate-900">0.00</span>
+                        <span class="text-2xl font-black text-slate-900">{{ sar_balance|floatformat:2 }}</span>
                         <span class="text-slate-400 text-xs font-bold">ر.س</span>
                     </div>
                 </div>
@@ -127,7 +120,7 @@
                 <div class="space-y-1">
                     <span class="text-slate-400 text-xs font-bold uppercase">ريال يمني (YER)</span>
                     <div class="flex items-baseline gap-1">
-                        <span id="balance-yer" class="text-2xl font-black text-slate-900">0.00</span>
+                        <span class="text-2xl font-black text-slate-900">{{ yer_balance|floatformat:2 }}</span>
                         <span class="text-slate-400 text-xs font-bold">ر.ي</span>
                     </div>
                 </div>
@@ -141,7 +134,7 @@
                 <div class="space-y-1">
                     <span class="text-slate-400 text-xs font-bold uppercase">يورو (EUR)</span>
                     <div class="flex items-baseline gap-1">
-                        <span id="balance-eur" class="text-2xl font-black text-slate-900">0.00</span>
+                        <span class="text-2xl font-black text-slate-900">{{ eur_balance|floatformat:2 }}</span>
                         <span class="text-slate-400 text-xs font-bold">€</span>
                     </div>
                 </div>
@@ -152,7 +145,7 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- لوحة تنفيذ الحركات المالية الفورية -->
+            <!-- أزرار تنفيذ العمليات المالية -->
             <div class="space-y-4">
                 <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
                     <span class="w-1.5 h-4 bg-blue-600 rounded-full"></span> تنفيذ حركة مالية فورية
@@ -202,13 +195,13 @@
                 </div>
             </div>
 
-            <!-- جدول سجل الحركات للعميل المستعلم حياً ومباشراً -->
+            <!-- جدول رندرة العمليات المالية حياً بالكامل باستخدام DTL loop -->
             <div class="lg:col-span-2 space-y-4">
                 <div class="flex items-center justify-between">
                     <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                        <span class="w-1.5 h-4 bg-blue-600 rounded-full"></span> السجل المالي التاريخي للعميل الحالي
+                        <span class="w-1.5 h-4 bg-blue-600 rounded-full"></span> السجل المالي التاريخي المباشر للعميل
                     </h2>
-                    <span id="transaction-count" class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-[10px] font-bold">0 عمليات</span>
+                    <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-[10px] font-bold">{{ transactions|length }} عمليات مسجلة</span>
                 </div>
 
                 <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
@@ -223,10 +216,36 @@
                                     <th class="py-4 px-6">التاريخ والوقت</th>
                                 </tr>
                             </thead>
-                            <tbody id="user-tx-table-body" class="divide-y divide-slate-100 font-medium">
-                                <tr>
-                                    <td colspan="5" class="text-center py-12 text-slate-400">جاري قراءة المعاملات المالية للعميل من nabil.sqlite3...</td>
+                            <tbody class="divide-y divide-slate-100 font-medium">
+                                {% for tx in transactions %}
+                                <tr class="hover:bg-slate-50 transition-colors">
+                                    <td class="py-4 px-6">
+                                        {% if tx.transaction_type == 'DEPOSIT' %}
+                                        <span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-lg text-[10px] font-bold border border-emerald-100"><i class="fa-solid fa-arrow-down ml-1"></i>إيداع</span>
+                                        {% elif tx.transaction_type == 'TRANSFER' %}
+                                        <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded-lg text-[10px] font-bold border border-blue-100"><i class="fa-solid fa-paper-plane ml-1"></i>تحويل</span>
+                                        {% elif tx.transaction_type == 'EXCHANGE' %}
+                                        <span class="bg-amber-50 text-amber-700 px-2 py-0.5 rounded-lg text-[10px] font-bold border border-amber-100"><i class="fa-solid fa-right-left ml-1"></i>مصارفة</span>
+                                        {% else %}
+                                        <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-lg text-[10px] font-bold">{{ tx.transaction_type }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="py-4 px-6 font-bold text-slate-900">{{ tx.amount|floatformat:2 }}</td>
+                                    <td class="py-4 px-6 text-slate-500 font-bold">{{ tx.from_currency.code }}</td>
+                                    <td class="py-4 px-6 font-bold {% if tx.converted_amount %}text-blue-600{% else %}text-slate-400{% endif %}">
+                                        {% if tx.converted_amount %}
+                                            {{ tx.converted_amount|floatformat:2 }} {{ tx.to_currency.code }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td class="py-4 px-6 text-slate-400 font-semibold text-[10px]">{{ tx.created_at|date:"Y-m-d H:i" }}</td>
                                 </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-12 text-slate-400">لا توجد حركات مسجلة لهذا العميل في قاعدة البيانات الحالية.</td>
+                                </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
@@ -254,7 +273,6 @@
                 </button>
             </div>
 
-            <!-- نموذج إرسال الحركة المالية مباشرة لـ Django -->
             <form id="form-transaction" onsubmit="handleTransactionSubmit(event)" class="p-6 space-y-4 text-xs">
                 <!-- اختيار العملة -->
                 <div id="field-currency">
@@ -271,9 +289,11 @@
                 <div id="field-receiver" class="hidden">
                     <label class="block font-bold text-slate-600 mb-1.5">اسم المستخدم المستلم (المرسل إليه)</label>
                     <select id="tx-receiver" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none">
-                        <option value="nabil">نبيل (nabil)</option>
-                        <option value="ahmed">أحمد (ahmed)</option>
-                        <option value="yasmin">ياسمين (yasmin)</option>
+                        {% for u in all_users %}
+                            {% if u.username != active_user.username %}
+                            <option value="{{ u.username }}">{{ u.username }}</option>
+                            {% endif %}
+                        {% endfor %}
                     </select>
                 </div>
 
@@ -294,14 +314,9 @@
                     <input id="tx-amount" type="number" step="0.01" required min="0.01" class="w-full px-4 py-3 rounded-xl border border-slate-200 font-bold focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="0.00">
                 </div>
 
-                <!-- أزرار الإرسال والتأكيد -->
                 <div class="flex items-center gap-3 pt-4">
-                    <button type="button" onclick="closeTransactionModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-xl font-bold">
-                        إلغاء
-                    </button>
-                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold transition-all shadow-md">
-                        تأكيد وإتمام المعاملة فوراً
-                    </button>
+                    <button type="button" onclick="closeTransactionModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-xl font-bold">إلغاء</button>
+                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold transition-all shadow-md">تأكيد وإتمام المعاملة فوراً</button>
                 </div>
             </form>
         </div>
@@ -311,21 +326,22 @@
     <div id="toast-container" class="fixed bottom-6 left-6 z-50 flex flex-col gap-3"></div>
 
     <script>
-        let activeUser = 'nabil';
+        // سحب اسم المستخدم النشط المرندر بداخل الـ Context تلقائياً من خادم دجانغو
+        const activeUser = "{{ active_user.username }}";
         let activeTransactionType = 'deposit';
 
-        // دالة تنظيف المسارات
-        function cleanBaseUrl(url) {
-            let clean = url.trim();
-            if (clean.endsWith('/')) {
-                clean = clean.slice(0, -1);
+        // دالة تحديد الرابط الذكي والمقاوم للأخطاء
+        function getBaseUrl() {
+            // التحقق هل الصفحة مفتوحة من سيرفر دجانغو الفعلي أم من مجلد محلي
+            if (window.location.port === '8000' || window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+                return '/api'; // استخدام مسار نسبي آمن للغاية داخل السيرفر
             }
-            return clean;
+            return 'http://127.0.0.1:8000/api'; // السيرفر الافتراضي في حال الفتح كملف مستقل
         }
 
-        // دالة إظهار التنبيهات بدلاً من الـ alert التقليدية
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
+            if (!container) return;
             const toast = document.createElement('div');
             const bgClass = type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-800 font-medium' : 'bg-red-50 border-red-200 text-red-800 font-medium';
             const icon = type === 'success' ? 'fa-circle-check text-emerald-500' : 'fa-triangle-exclamation text-red-500';
@@ -338,126 +354,9 @@
             setTimeout(() => {
                 toast.classList.add('translate-y-6', 'opacity-0');
                 setTimeout(() => toast.remove(), 300);
-            }, 4000);
+            }, 5000);
         }
 
-        // دالة استدعاء وجلب الأرصدة والمعاملات الحية للعميل المختار مباشرة من nabil.sqlite3
-        async function loadDashboardData() {
-            const rawUrl = document.getElementById('api-base-url').value;
-            const baseUrl = cleanBaseUrl(rawUrl);
-            const statusBadge = document.getElementById('connection-status-badge');
-
-            // تحديث اسم العميل في الشاشة
-            document.getElementById('debug-username-display').textContent = activeUser;
-
-            statusBadge.className = "inline-flex items-center gap-1.5 text-blue-500 font-bold";
-            statusBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-blue-500 animate-ping"></span> جاري تحديث الأرصدة الحقيقية...`;
-
-            try {
-                // 1. جلب بيانات الأرصدة والملف الشخصي بدون حماية وأمان (عبر تمرير اسم العميل في الـ Query Params)
-                // السيرفر مبرمج ليفهم من هو العميل المطلوب مباشرة من الـ Query
-                const profileResponse = await fetch(`${baseUrl}/profile?username=${activeUser}`);
-                const txResponse = await fetch(`${baseUrl}/transactions?username=${activeUser}`);
-
-                if (profileResponse.ok && txResponse.ok) {
-                    const profileData = await profileResponse.json();
-                    const txData = await txResponse.json();
-
-                    // تحديث الأرصدة الأربعة على الواجهة بالملّي
-                    const rates = { USD: 0, SAR: 0, YER: 0, EUR: 0 };
-                    if (profileData.wallet && profileData.wallet.balances) {
-                        profileData.wallet.balances.forEach(b => {
-                            if (rates[b.currency_code] !== undefined) {
-                                rates[b.currency_code] = parseFloat(b.amount);
-                            }
-                        });
-                    }
-
-                    document.getElementById('balance-usd').textContent = rates.USD.toLocaleString('en-US', { minimumFractionDigits: 2 });
-                    document.getElementById('balance-sar').textContent = rates.SAR.toLocaleString('en-US', { minimumFractionDigits: 2 });
-                    document.getElementById('balance-yer').textContent = rates.YER.toLocaleString('en-US', { minimumFractionDigits: 2 });
-                    document.getElementById('balance-eur').textContent = rates.EUR.toLocaleString('en-US', { minimumFractionDigits: 2 });
-
-                    // تحديث جدول الحركات المالية الخاص بهذا العميل فقط
-                    renderUserTransactions(txData);
-
-                    statusBadge.className = "inline-flex items-center gap-1.5 text-emerald-600 font-bold bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-200";
-                    statusBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> تم جلب وقراءة الأرصدة من nabil.sqlite3!`;
-                } else {
-                    throw new Error("السيرفر رفض قراءة الأرصدة، قد تحتاج لتعديل الـ View لتسمح بمرور الـ Query parameter.");
-                }
-
-            } catch (error) {
-                console.error(error);
-                clearDashboardFields();
-                statusBadge.className = "inline-flex items-center gap-1.5 text-red-500 font-bold bg-red-50 px-3 py-1 rounded-lg border border-red-200";
-                statusBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-red-500"></span> تعذر الاتصال بسيرفر Django!`;
-                showToast("فشل في مزامنة الأرصدة، يرجى تشغيل السيرفر المحلي وتفعيل الـ CORS.", "error");
-            }
-        }
-
-        // تفريغ الواجهة من البيانات عند الخطأ لضمان الشفافية وعدم عرض بيانات وهمية
-        function clearDashboardFields() {
-            document.getElementById('balance-usd').textContent = "0.00";
-            document.getElementById('balance-sar').textContent = "0.00";
-            document.getElementById('balance-yer').textContent = "0.00";
-            document.getElementById('balance-eur').textContent = "0.00";
-
-            document.getElementById('user-tx-table-body').innerHTML = `
-                <tr>
-                    <td colspan="5" class="text-center py-12 text-red-500 font-bold">
-                        <i class="fa-solid fa-circle-exclamation text-lg block mb-1"></i> تعذر الاتصال ببيانات العميل الحية من nabil.sqlite3
-                    </td>
-                </tr>`;
-            document.getElementById('transaction-count').textContent = `0 عملية`;
-        }
-
-        // رسم جدول الحركات المالية التاريخية للعميل
-        function renderUserTransactions(txList) {
-            const tableBody = document.getElementById('user-tx-table-body');
-            document.getElementById('transaction-count').textContent = `${txList.length} عمليات`;
-            tableBody.innerHTML = '';
-
-            if (txList.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="5" class="text-center py-12 text-slate-400">لا توجد حركات مسجلة لهذا العميل في قاعدة البيانات الحالية.</td></tr>`;
-                return;
-            }
-
-            txList.forEach(tx => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 transition-colors";
-
-                let typeBadge = '';
-                if (tx.transaction_type === 'DEPOSIT') {
-                    typeBadge = '<span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-lg text-[10px] font-bold border border-emerald-100"><i class="fa-solid fa-arrow-down ml-1"></i>إيداع</span>';
-                } else if (tx.transaction_type === 'TRANSFER') {
-                    typeBadge = '<span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded-lg text-[10px] font-bold border border-blue-100"><i class="fa-solid fa-paper-plane ml-1"></i>تحويل</span>';
-                } else if (tx.transaction_type === 'EXCHANGE') {
-                    typeBadge = '<span class="bg-amber-50 text-amber-700 px-2 py-0.5 rounded-lg text-[10px] font-bold border border-amber-100"><i class="fa-solid fa-right-left ml-1"></i>مصارفة</span>';
-                } else {
-                    typeBadge = `<span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-lg text-[10px] font-bold">${tx.transaction_type}</span>`;
-                }
-
-                const amount = tx.amount_value !== undefined ? tx.amount_value : (tx.amount !== undefined ? tx.amount : 0);
-                const currency = tx.currency_code || tx.from_currency_code || '';
-                const converted = tx.converted_amount;
-                const toCurrency = tx.to_currency_code || '';
-                const date = tx.created_at || tx.date || '-';
-
-                tr.innerHTML = `
-                    <td class="py-4 px-6 font-semibold">${typeBadge}</td>
-                    <td class="py-4 px-6 font-bold text-slate-900">${parseFloat(amount).toFixed(2)}</td>
-                    <td class="py-4 px-6 text-slate-500 font-bold">${currency}</td>
-                    <td class="py-4 px-6 font-bold ${converted ? 'text-blue-600' : 'text-slate-400'}">
-                        ${converted ? parseFloat(converted).toFixed(2) + ' ' + toCurrency : '-'}
-                    </td>
-                    <td class="py-4 px-6 text-slate-400 font-semibold text-[10px]">${date}</td>
-                `;
-                tableBody.appendChild(tr);
-            });
-        }
-
-        // فتح نافذة العملية المالية وتجهيز الحقول المناسبة
         function openTransactionModal(type) {
             activeTransactionType = type;
             const modal = document.getElementById('transaction-modal');
@@ -499,7 +398,6 @@
             setTimeout(() => container.classList.remove('scale-95', 'opacity-0'), 10);
         }
 
-        // إغلاق نافذة المعاملة
         function closeTransactionModal() {
             const modal = document.getElementById('transaction-modal');
             const container = document.getElementById('modal-container');
@@ -507,26 +405,39 @@
             setTimeout(() => modal.classList.add('hidden'), 200);
         }
 
-        // إرسال وتنفيذ الحركة المالية الفورية عبر الـ API لدجانغو
         async function handleTransactionSubmit(event) {
             event.preventDefault();
+
+            // فحص أمني: هل يتم تشغيل الصفحة عبر السيرفر؟
+            if (activeUser.startsWith('{{') || activeUser.trim() === '') {
+                showToast("تنبيه هام: أنت تقوم بفتح الملف محلياً من جهازك وليس عبر السيرفر! يرجى الدخول عبر الرابط: http://127.0.0.1:8000/api/dashboard", "error");
+                return;
+            }
 
             const currencyCode = document.getElementById('tx-currency').value;
             const amount = parseFloat(document.getElementById('tx-amount').value);
             const receiverUsername = document.getElementById('tx-receiver').value;
             const toCurrencyCode = document.getElementById('tx-to-currency').value;
             
-            const rawUrl = document.getElementById('api-base-url').value;
-            const baseUrl = cleanBaseUrl(rawUrl);
+            const baseUrl = getBaseUrl();
+
+            if (isNaN(amount) || amount <= 0) {
+                showToast("يرجى إدخال مبلغ مالي صحيح أكبر من الصفر.", "error");
+                return;
+            }
 
             let endPoint = '';
-            let payload = { username: activeUser }; // إرسال اسم العميل المسؤول عن الحركة مباشرة
+            let payload = { username: activeUser };
 
             if (activeTransactionType === 'deposit') {
                 endPoint = `${baseUrl}/deposit`;
                 payload.currency_code = currencyCode;
                 payload.amount = amount;
             } else if (activeTransactionType === 'transfer') {
+                if (!receiverUsername) {
+                    showToast("يرجى اختيار العميل المستلم لإتمام عملية التحويل.", "error");
+                    return;
+                }
                 if (activeUser === receiverUsername) {
                     showToast("لا يمكنك تحويل الأموال إلى نفسك!", "error");
                     return;
@@ -537,7 +448,7 @@
                 payload.amount = amount;
             } else if (activeTransactionType === 'exchange') {
                 if (currencyCode === toCurrencyCode) {
-                    showToast("يرجى اختيار عملات مختلفة للمصارفة والتبديل.", "error");
+                    showToast("يرجى اختيار عملات مختلفة للمصارفة.", "error");
                     return;
                 }
                 endPoint = `${baseUrl}/exchange`;
@@ -546,8 +457,9 @@
                 payload.amount = amount;
             }
 
+            showToast("جاري إرسال العملية ومعالجتها في السيرفر...", "success");
+
             try {
-                // إرسال الطلب وحفظ التغيرات مباشرة وحياً في nabil.sqlite3
                 const response = await fetch(endPoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -555,38 +467,22 @@
                 });
 
                 if (response.ok) {
-                    showToast("تم تنفيذ العملية المالية بنجاح وحفظها في nabil.sqlite3!", "success");
+                    showToast("تم تنفيذ العملية وحفظها حياً في nabil.sqlite3!", "success");
                     closeTransactionModal();
-                    await loadDashboardData(); // تحديث فوري للأرصدة
+                    
+                    // إعادة تحميل الصفحة لإعادة رندرة البيانات بالـ Context الجديد
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
                 } else {
                     const resData = await response.json();
-                    showToast(resData.error || resData.detail || "تعذر إتمام العملية المالية، تأكد من وجود رصيد كافٍ.", "error");
+                    showToast(resData.error || resData.detail || "تعذر إتمام العملية المالية. قد يكون الرصيد غير كافٍ.", "error");
                 }
             } catch (err) {
                 console.error(err);
-                showToast("فشل الاتصال بخادم العمليات المالي الفعلي.", "error");
+                showToast(`فشل المعاملة الماليّة: ${err.message}`, "error");
             }
         }
-
-        // عند تغيير المستخدم النشط عبر منتقي المستخدمين
-        function changeActiveUser() {
-            activeUser = document.getElementById('active-user-selector').value;
-            loadDashboardData();
-        }
-
-        // تشغيل برمجية التحديث التلقائي الفوري فور التحميل
-        window.onload = function() {
-            const savedUrl = localStorage.getItem('demo_api_url');
-            if (savedUrl) {
-                document.getElementById('api-base-url').value = savedUrl;
-            }
-            loadDashboardData();
-        };
-
-        // حفظ رابط السيرفر تلقائياً للتسهيل عند الاستخدام
-        document.getElementById('api-base-url').addEventListener('change', function() {
-            localStorage.setItem('demo_api_url', this.value);
-        });
     </script>
 </body>
 </html>

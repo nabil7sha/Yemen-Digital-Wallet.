@@ -1,19 +1,21 @@
 from rest_framework import views, status
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny  # السماح بالوصول العام بدون تعقيدات أمنية وتوكن
+from rest_framework.permissions import AllowAny  # السماح بالوصول العام المفتوح لتسهيل العرض المباشر
 from django.contrib.auth.models import User
 from django.db.models import Sum
-from .models import Wallet, WalletBalance, Transaction, Currency
+from django.shortcuts import get_object_or_404
+from decimal import Decimal
+from .models import Wallet, WalletBalance, Transaction, Currency, ExchangeRate
 
 class AdminDashboardStatsView(views.APIView):
     """
     واجهة برمجية لجلب إحصائيات قاعدة البيانات (nabil.sqlite3) العامة بشكل حي ومباشر
     """
-    permission_classes = [AllowAny]  # عرض مباشر وبدون حماية توثيق
+    permission_classes = [AllowAny]
 
     def get(self, request):
         try:
-            # 1. إحصائيات الكيانات الأساسية
+            # 1. إحصائيات الكيانات الأساسية من قاعدة البيانات الحقيقية
             total_users = User.objects.count()
             total_wallets = Wallet.objects.count()
             total_transactions = Transaction.objects.count()
@@ -53,28 +55,23 @@ class AdminGlobalTransactionsView(views.APIView):
     """
     واجهة برمجية لجلب كافة الحركات التاريخية المسجلة لجميع المحافظ والعملاء حياً ومباشراً
     """
-    permission_classes = [AllowAny]  # عرض مباشر وبدون حماية توثيق
+    permission_classes = [AllowAny]
 
     def get(self, request):
         try:
-            # جلب جميع المعاملات من الأحدث إلى الأقدم
+            # جلب جميع المعاملات من قاعدة البيانات nabil.sqlite3 مرتبة من الأحدث إلى الأقدم
             transactions = Transaction.objects.all().order_by('-created_at')
             
             transactions_data = []
             for tx in transactions:
-                # جلب اسم صاحب المحفظة
                 wallet_username = tx.wallet.user.username if (tx.wallet and tx.wallet.user) else "مستخدم عام"
-                
-                # جلب الطرف المقابل في حال التحويل المالي
                 counterpart_username = tx.counterpart_wallet.user.username if (tx.counterpart_wallet and tx.counterpart_wallet.user) else None
                 
-                # تنسيق الاسم المعروض لتوضيح أطراف عملية التحويل
                 if tx.transaction_type == 'TRANSFER' and counterpart_username:
                     display_name = f"{wallet_username} ⇆ {counterpart_username}"
                 else:
                     display_name = wallet_username
 
-                # تنسيق العمليات بمرونة تامة لتطابق حقول الـ HTML
                 transactions_data.append({
                     "id": tx.id,
                     "wallet_username": display_name,
@@ -96,3 +93,64 @@ class AdminGlobalTransactionsView(views.APIView):
                 {"error": f"فشل جلب المعاملات من قاعدة البيانات: {str(e)}"}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+class AdminExchangeRateView(views.APIView):
+    """
+    جلب وتحديث أسعار الصرف حياً ومباشراً من لوحة تحكم الأدمن
+    """
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        try:
+            # جلب جميع أسعار الصرف الحية
+            rates = ExchangeRate.objects.all().order_by('from_currency__code')
+            rates_data = []
+            for r in rates:
+                rates_data.append({
+                    "id": r.id,
+                    "from_currency": r.from_currency.code,
+                    "to_currency": r.to_currency.code,
+                    "rate": float(r.rate)
+                })
+            return Response(rates_data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": f"فشل جلب أسعار الصرف: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+
+    def post(self, request):
+        from_code = request.data.get('from_currency')
+        to_code = request.data.get('to_currency')
+        rate_value = request.data.get('rate')
+
+        if not from_code or not to_code or rate_value is None:
+            return Response({"error": "جميع حقول سعر الصرف مطلوبة!"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            from_currency = get_object_or_404(Currency, code=from_code)
+            to_currency = get_object_or_404(Currency, code=to_code)
+
+            # تحديث أو إنشاء سعر الصرف في nabil.sqlite3
+            rate_obj, created = ExchangeRate.objects.update_or_create(
+                from_currency=from_currency,
+                to_currency=to_currency,
+                defaults={"rate": Decimal(str(rate_value))}
+            )
+
+            # Best Practice: تحديث سعر الصرف العكسي تلقائياً لتسهيل وتبسيط العمليات الثنائية
+            try:
+                inverse_rate = Decimal("1") / Decimal(str(rate_value))
+                ExchangeRate.objects.update_or_create(
+                    from_currency=to_currency,
+                    to_currency=from_currency,
+                    defaults={"rate": inverse_rate}
+                )
+            except Exception:
+                pass # تجاهل الأخطاء الحسابية في حال كانت المدخلات صفرية
+
+            return Response({
+                "success": f"تم قيد وتحديث سعر صرف {from_code} إلى {to_code} بنجاح حقيقي!",
+                "rate": float(rate_obj.rate)
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": f"فشلت عملية تحديث أسعار الصرف: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)

@@ -1,16 +1,33 @@
 from django.urls import path
-from .views import ProfileView, TransactionListView, DepositView, TransferView, ExchangeView
-from .admin_views import AdminDashboardStatsView, AdminGlobalTransactionsView
+from .views import (
+    user_dashboard_template_view,       # دالة رندرة المستخدم بالـ Context
+    admin_dashboard_template_view,      # دالة رندرة الأدمن بالـ Context
+    ProfileView,
+    TransactionListView,
+    DepositView, 
+    TransferView, 
+    ExchangeView
+)
+from .admin_views import (
+    AdminDashboardStatsView, 
+    AdminGlobalTransactionsView, 
+    AdminExchangeRateView
+)
 
 urlpatterns = [
-    # --- وحدة العميل المالي (Client Wallet API - مفتوحة وبدون أمان للعرض المباشر) ---
-    path('profile', ProfileView.as_view(), name='user_profile_no_auth'),
-    path('transactions', TransactionListView.as_view(), name='transaction_list_no_auth'),
-    path('deposit', DepositView.as_view(), name='wallet_deposit_no_auth'),
-    path('transfer', TransferView.as_view(), name='wallet_transfer_no_auth'),
-    path('exchange', ExchangeView.as_view(), name='wallet_exchange_no_auth'),
+    # 🌐 مسارات رندرة الصفحات المباشرة مع الـ Context من الخادم (Server Rendered)
+    path('dashboard', user_dashboard_template_view, name='user_dashboard_luminous'),
+    path('admin-dashboard', admin_dashboard_template_view, name='admin_dashboard_luminous'),
 
-    # --- وحدة الرقابة الإدارية (Admin Controller API - مفتوحة للعرض) ---
-    path('admin/stats', AdminDashboardStatsView.as_view(), name='admin_stats'),
-    path('admin/transactions', AdminGlobalTransactionsView.as_view(), name='admin_transactions_list'),
+    # --- واجهات العمليات المالية للعملاء (APIs) ---
+    path('profile', ProfileView.as_view(), name='wallet_profile_api'),
+    path('transactions', TransactionListView.as_view(), name='wallet_transactions_api'),
+    path('deposit', DepositView.as_view(), name='wallet_deposit_api'),
+    path('transfer', TransferView.as_view(), name='wallet_transfer_api'),
+    path('exchange', ExchangeView.as_view(), name='wallet_exchange_api'),
+
+    # --- واجهات لوحة التحكم للمشرفين والمسؤولين (Admin APIs) ---
+    path('admin/stats', AdminDashboardStatsView.as_view(), name='admin_stats_api'),
+    path('admin/transactions', AdminGlobalTransactionsView.as_view(), name='admin_transactions_api'),
+    path('admin/exchange-rates', AdminExchangeRateView.as_view(), name='admin_exchange_rates_api'),
 ]
