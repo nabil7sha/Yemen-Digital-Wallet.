@@ -3,606 +3,438 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NSB Wallet - لوحة تحكم الإدارة الحية</title>
-    <!-- استيراد خطوط جوجل ومكتبة أيقونات FontAwesome -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- استخدام Tailwind CSS للتصميم -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        cairo: ['Cairo', 'sans-serif'],
-                    },
-                    colors: {
-                        admin: {
-                            bg: '#090d16',
-                            card: '#111827',
-                            primary: '#6366f1',
-                            primaryHover: '#4f46e5',
-                            accent: '#10b981',
-                            accentHover: '#059669',
-                            danger: '#ef4444',
-                            warning: '#f59e0b',
-                            text: '#f3f4f6',
-                            textMuted: '#9ca3af',
-                            border: '#1f2937'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+    <title>Vision Creative Studio | الفخامة والإبداع الرقمي</title>
     <style>
+        /* 🎨 إعدادات الخطوط والألوان الفاخرة */
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&display=swap');
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             font-family: 'Cairo', sans-serif;
-            background-color: #090d16;
+            background-color: #030712;
+            color: #f3f4f6;
+            overflow-x: hidden;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 80% 20%, rgba(0, 242, 254, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 10% 80%, rgba(79, 172, 254, 0.05) 0%, transparent 50%);
         }
-        /* تأثير الزجاج الفاخر للخلفيات */
-        .glass-card {
-            background: rgba(17, 24, 39, 0.7);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+
+        /* 🎬 شاشة الترحيب السينمائية */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+            transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), visibility 1s;
         }
-        .glow-indigo {
-            box-shadow: 0 0 25px -5px rgba(99, 102, 241, 0.3);
+
+        #splash-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none;
         }
-        .glow-emerald {
-            box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.3);
+
+        #skip-btn {
+            position: absolute;
+            bottom: 40px;
+            left: 40px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 14px 32px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 700;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: all 0.4s ease;
+            z-index: 100000;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
         }
-        /* تخصيص مظهر شريط التمرير للمظهر الاحترافي */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+        #skip-btn:hover {
+            background: rgba(0, 242, 254, 0.1);
+            border-color: #00f2fe;
+            color: #00f2fe;
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.5);
+            transform: translateY(-3px);
         }
-        ::-webkit-scrollbar-track {
-            background: #090d16;
+
+        /* 🌐 هيكل الموقع الرئيسي */
+        #main-content {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 1.2s cubic-bezier(0.34, 1.56, 0.64, 1), transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
         }
-        ::-webkit-scrollbar-thumb {
-            background: #1f2937;
-            border-radius: 999px;
+
+        #main-content.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #4f46e5;
+
+        /* القائمة العلوية الفاخرة */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 40px;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.01);
+            backdrop-filter: blur(8px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+        .logo span {
+            background: linear-gradient(45deg, #00f2fe, #4facfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        nav a {
+            color: #9ca3af;
+            text-decoration: none;
+            margin-right: 35px;
+            font-size: 16px;
+            font-weight: 700;
+            transition: color 0.3s ease;
+        }
+        nav a:hover, nav a.active {
+            color: #00f2fe;
+        }
+
+        /* قسم الـ Hero الثوري */
+        .hero {
+            text-align: center;
+            padding: 140px 0 100px;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-size: 64px;
+            color: #fff;
+            margin-bottom: 30px;
+            font-weight: 900;
+            line-height: 1.3;
+        }
+        .hero h1 span {
+            background: linear-gradient(90deg, #00f2fe, #4facfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+        }
+
+        .hero p {
+            font-size: 24px;
+            color: #9ca3af;
+            max-width: 800px;
+            margin: 0 auto 50px;
+            line-height: 1.8;
+            font-weight: 300;
+        }
+
+        .cta-btn {
+            background: linear-gradient(45deg, #00f2fe, #4facfe);
+            color: #030712;
+            padding: 16px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 900;
+            font-size: 18px;
+            box-shadow: 0 10px 30px rgba(0, 242, 254, 0.3);
+            transition: all 0.4s ease;
+            display: inline-block;
+        }
+        .cta-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 242, 254, 0.5);
+        }
+
+        /* أقسام العناوين */
+        .section-title {
+            text-align: center;
+            font-size: 36px;
+            color: #fff;
+            margin: 120px 0 60px;
+            font-weight: 900;
+        }
+        .section-title span {
+            color: #00f2fe;
+        }
+
+        /* 🛠️ شبكة الخدمات المتقدمة */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 40px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 28px;
+            padding: 60px 45px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .card:hover {
+            transform: translateY(-12px);
+            border-color: rgba(0, 242, 254, 0.3);
+            background: rgba(255, 255, 255, 0.02);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+        }
+
+        .card .icon {
+            font-size: 50px;
+            margin-bottom: 30px;
+            display: inline-block;
+            background: linear-gradient(45deg, #00f2fe, #4facfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .card h3 {
+            font-size: 26px;
+            color: #fff;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .card p {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #9ca3af;
+        }
+
+        /* 🎬 قسم معرض الأعمال القوي (Portfolio) */
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .portfolio-item {
+            position: relative;
+            border-radius: 24px;
+            overflow: hidden;
+            height: 280px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            cursor: pointer;
+        }
+
+        .portfolio-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .portfolio-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, #030712 20%, rgba(3, 7, 18, 0.4));
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 30px;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .portfolio-item:hover img {
+            transform: scale(1.1);
+        }
+
+        .portfolio-item:hover .portfolio-overlay {
+            opacity: 1;
+        }
+
+        .portfolio-overlay h4 {
+            font-size: 22px;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .portfolio-overlay p {
+            font-size: 14px;
+            color: #00f2fe;
+            font-weight: 700;
+        }
+
+        footer {
+            text-align: center;
+            padding: 60px 0;
+            margin-top: 120px;
+            border-top: 1px solid rgba(255, 255, 255, 0.02);
+            font-size: 14px;
+            color: #4b5563;
         }
     </style>
 </head>
-<body class="text-admin-text min-h-screen font-cairo overflow-x-hidden selection:bg-indigo-600 selection:text-white">
+<body>
 
-    <!-- شريط التنقل العلوي الفاخر والمستقبلي -->
-    <header class="glass-card sticky top-0 z-40 w-full border-b border-admin-border px-4 lg:px-8 py-4 shadow-2xl">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-            
-            <!-- الهوية والشعار المضيء -->
-            <div class="flex items-center gap-3.5 group">
-                <div class="bg-gradient-to-tr from-indigo-600 to-purple-500 text-white p-3 rounded-2xl shadow-lg shadow-indigo-500/30 group-hover:scale-105 transition-all duration-300">
-                    <i class="fa-solid fa-shield-halved text-2xl animate-pulse"></i>
+    <div id="splash-screen" onclick="forcePlayVideo()">
+    <button id="skip-btn" onclick="showMainPage(event)">تخطي الترحيب ✕</button>
+    
+    <video id="splash-video" autoplay muted playsinline preload="auto" style="
+        width: 100vw;
+        height: 100vh;
+        object-fit: cover; /* يضمن امتلاء الشاشة بالكامل دون أي تمطيط أو تشويه للشعار */
+        object-position: center;
+        image-rendering: -webkit-optimize-contrast; /* زيادة حدة ونقاء تفاصيل الفيديو على الشاشات العالية */
+        image-rendering: crisp-edges;
+    ">
+        <source src="intro1.mp4" type="video/mp4">
+        المتصفح لا يدعم تشغيل الفيديو.
+    </video>
+</div>
+
+    <div id="main-content">
+        <header>
+            <div class="logo">VISION<span>.</span></div>
+            <nav>
+                <a href="#services">الخدمات</a>
+                <a href="#portfolio">المعرض</a>
+                <a href="#contact" class="active">تواصل معي</a>
+            </nav>
+        </header>
+
+        <section class="hero">
+            <h1>نصنع الواقع الرقمي بلمسة <span>إبداعية سينمائية</span></h1>
+            <p>نحن لا نبرمج مواقع فقط ولا نكتفي بالمونتاج العادي، بل نصنع تجارب بصرية فريدة وهوية برمجية خارقة لأعمالك.</p>
+            <a href="#portfolio" class="cta-btn">تصفح معرض أعمالنا</a>
+        </section>
+
+        <section id="services">
+            <h2 class="section-title">مجالات <span>التميز</span></h2>
+            <div class="services-grid">
+                <div class="card">
+                    <div class="icon">💻</div>
+                    <h3>البرمجة والتطوير المتقدم</h3>
+                    <p>هندسة مواقع الويب بأكواد نظيفة وسريعة التجاوب لتمنح عملائك تجربة تصفح تفاعلية لا تُنسى.</p>
                 </div>
-                <div>
-                    <div class="flex items-center gap-2">
-                        <h1 class="text-xl font-black text-white tracking-tight">نظام الرقابة المركزي </h1>
-                        <span class="bg-indigo-500/10 text-indigo-400 text-[10px] font-black px-2 py-0.5 rounded-full border border-indigo-500/20">  nabil alsharafi</span>
-                    </div>
-                    <p class="text-xs text-admin-textMuted font-medium mt-0.5">اتصال حي ومباشر بقاعدة بيانات   <span class="font-mono text-indigo-400">nabil.sqlite3</span></p>
+                <div class="card">
+                    <div class="icon">🎨</div>
+                    <h3>تصميم واجهات الـ UI/UX</h3>
+                    <p>تحويل الأفكار المعقدة إلى تصاميم بصرية غاية في الفخامة والبساطة تركز على راحة المستخدم.</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🎬</div>
+                    <h3>المونتاج والإنتاج السينمائي</h3>
+                    <p>صناعة مقاطع فيديو ترويجية وإعلانية بلمسات سينمائية ومؤثرات صوتية فريدة تضمن انتشار أعمالك.</p>
                 </div>
             </div>
+        </section>
 
-            <!-- لوحة التحكم السريعة للاتصال والمزامنة -->
-            <div class="flex items-center flex-wrap gap-4 justify-center w-full md:w-auto">
-                <div class="flex items-center gap-2 bg-admin-card/80 px-3.5 py-2 rounded-2xl border border-admin-border w-full sm:w-auto">
-                    <span class="text-xs text-admin-textMuted font-bold shrink-0">رابط الـ API:</span>
-                    <input id="api-base-url" type="text" value="http://127.0.0.1:8000/api" class="bg-admin-bg/90 text-indigo-300 px-3 py-1.5 rounded-xl border border-admin-border text-xs font-mono text-left focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all w-full sm:w-56" placeholder="http://127.0.0.1:8000/api" onchange="fetchRealData()">
-                </div>
+        <section id="portfolio">
+            <h2 class="section-title">آخر <span>المشاريع</span></h2>
+            <div class="portfolio-grid">
                 
-                <button onclick="fetchRealData()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-2xl text-xs font-bold transition-all duration-300 shadow-lg shadow-indigo-500/20 hover:scale-[1.02] flex items-center justify-center gap-2 w-full sm:w-auto">
-                    <i id="sync-icon" class="fa-solid fa-rotate"></i> تحديث فوري وقراءة حية
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <main class="max-w-7xl mx-auto px-4 lg:px-8 py-8 space-y-8">
-
-        <!-- لوحة مراقبة حالة الاتصال والـ Live Debugging Widget -->
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            
-            <!-- أداة فحص ومراقبة الاتصال التفاعلية (Checklist) -->
-            <div class="lg:col-span-1 glass-card p-5 rounded-3xl border border-admin-border flex flex-col justify-between">
-                <div>
-                    <h3 class="text-xs font-black text-indigo-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-vial-circle-check"></i> متطلبات الاتصال بالخلفية
-                    </h3>
-                    <ul class="space-y-3.5 text-xs">
-                        <li class="flex items-start gap-2.5">
-                            <span id="check-server" class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] bg-red-500/10 text-red-400 border border-red-500/20 transition-colors shrink-0">
-                                <i class="fa-solid fa-xmark"></i>
-                            </span>
-                            <div>
-                                <p class="font-bold text-admin-text">خادم دجانغو يعمل</p>
-                                <p class="text-[10px] text-admin-textMuted mt-0.5">Port 8000 نشط حالياً</p>
-                            </div>
-                        </li>
-                        <li class="flex items-start gap-2.5">
-                            <span id="check-cors" class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] bg-red-500/10 text-red-400 border border-red-500/20 transition-colors shrink-0">
-                                <i class="fa-solid fa-xmark"></i>
-                            </span>
-                            <div>
-                                <p class="font-bold text-admin-text">تفعيل صلاحيات CORS</p>
-                                <p class="text-[10px] text-admin-textMuted mt-0.5">السماح بالطلبات الخارجية</p>
-                            </div>
-                        </li>
-                        <li class="flex items-start gap-2.5">
-                            <span id="check-endpoints" class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] bg-red-500/10 text-red-400 border border-red-500/20 transition-colors shrink-0">
-                                <i class="fa-solid fa-xmark"></i>
-                            </span>
-                            <div>
-                                <p class="font-bold text-admin-text">مسارات الإدارة نشطة</p>
-                                <p class="text-[10px] text-admin-textMuted mt-0.5">admin/stats مفعّل في URLs</p>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="mt-6 pt-4 border-t border-admin-border">
-                    <div class="flex items-center justify-between text-xs font-mono">
-                        <span class="text-admin-textMuted">زمن الاستجابة:</span>
-                        <span id="ping-time" class="text-admin-text font-bold">--</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- تيرمنال تتبع العمليات الحية (Terminal Terminal Terminal Logging) -->
-            <div class="lg:col-span-3 glass-card rounded-3xl border border-admin-border overflow-hidden flex flex-col h-full min-h-[220px]">
-                <div class="bg-admin-bg/90 px-5 py-3 border-b border-admin-border flex items-center justify-between shrink-0">
-                    <div class="flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
-                        <span class="w-2.5 h-2.5 rounded-full bg-yellow-500"></span>
-                        <span class="w-2.5 h-2.5 rounded-full bg-green-500"></span>
-                        <span class="text-[11px] font-bold font-mono text-indigo-400 mr-2"><i class="fa-solid fa-terminal"></i> مخرجات الاتصال بالشبكة (Network Logs)</span>
-                    </div>
-                    <button onclick="clearLogs()" class="text-admin-textMuted hover:text-white text-[10px] font-black transition-colors"><i class="fa-solid fa-trash-can mr-1"></i> مسح السجل</button>
-                </div>
-                <div id="log-console" class="p-4 bg-admin-bg/50 font-mono text-[11px] text-indigo-300 overflow-y-auto flex-1 max-h-[180px] space-y-1.5 leading-relaxed">
-                    <!-- سيتم حقن سجلات المراقبة عبر الجافا سكريبت هنا -->
-                </div>
-            </div>
-
-        </div>
-
-        <!-- بطاقات الكيانات الحقيقية الفاخرة المباشرة -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
-            <!-- بطاقة المستخدمين -->
-            <div class="glass-card p-6 rounded-3xl border border-admin-border glow-indigo flex items-center justify-between group hover:border-indigo-500/30 transition-all duration-300">
-                <div class="space-y-1.5">
-                    <span class="text-admin-textMuted text-xs font-black uppercase tracking-wider">مستخدمي nabil.sqlite3</span>
-                    <div class="flex items-baseline gap-2">
-                        <h3 id="stat-users" class="text-4xl font-black text-white">--</h3>
-                        <span class="text-xs text-indigo-400 font-bold">حسابات نشطة</span>
-                    </div>
-                </div>
-                <div class="w-14 h-14 bg-indigo-500/10 text-indigo-400 rounded-2xl flex items-center justify-center text-2xl border border-indigo-500/20 group-hover:rotate-12 transition-transform duration-300">
-                    <i class="fa-solid fa-users"></i>
-                </div>
-            </div>
-
-            <!-- بطاقة المحافظ المفتوحة -->
-            <div class="glass-card p-6 rounded-3xl border border-admin-border flex items-center justify-between group hover:border-emerald-500/30 transition-all duration-300">
-                <div class="space-y-1.5">
-                    <span class="text-admin-textMuted text-xs font-black uppercase tracking-wider">المحافظ المفتوحة بالكامل</span>
-                    <div class="flex items-baseline gap-2">
-                        <h3 id="stat-wallets" class="text-4xl font-black text-white">--</h3>
-                        <span class="text-xs text-emerald-400 font-bold">محفظة مفعلة</span>
-                    </div>
-                </div>
-                <div class="w-14 h-14 bg-emerald-500/10 text-emerald-400 rounded-2xl flex items-center justify-center text-2xl border border-emerald-500/20 group-hover:rotate-12 transition-transform duration-300">
-                    <i class="fa-solid fa-wallet"></i>
-                </div>
-            </div>
-
-            <!-- بطاقة العمليات التاريخية -->
-            <div class="glass-card p-6 rounded-3xl border border-admin-border flex items-center justify-between group hover:border-amber-500/30 transition-all duration-300">
-                <div class="space-y-1.5">
-                    <span class="text-admin-textMuted text-xs font-black uppercase tracking-wider">الحركات والعمليات المالية</span>
-                    <div class="flex items-baseline gap-2">
-                        <h3 id="stat-transactions" class="text-4xl font-black text-white">--</h3>
-                        <span class="text-xs text-amber-400 font-bold">عملية مسجلة</span>
-                    </div>
-                </div>
-                <div class="w-14 h-14 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center text-2xl border border-amber-500/20 group-hover:rotate-12 transition-transform duration-300">
-                    <i class="fa-solid fa-shuffle"></i>
-                </div>
-            </div>
-
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
-            <!-- لوحة سيولة البنك والأرصدة المودعة حقيقة حسب العملات -->
-            <div class="glass-card p-6 rounded-3xl border border-admin-border flex flex-col h-full">
-                <div class="flex items-center justify-between pb-4 border-b border-admin-border mb-5">
-                    <h3 class="text-sm font-black text-white flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse"></span> سيولة العملات المودعة
-                    </h3>
-                    <span class="bg-indigo-500/10 text-indigo-400 text-[10px] font-bold px-2 py-0.5 rounded-full">الاحتياطي النقدي</span>
-                </div>
-
-                <div id="liquidity-container" class="space-y-4 flex-1">
-                    <!-- سيتم توليد العناصر برمجياً هنا بناءً على السيولة الحقيقية -->
-                    <div class="flex flex-col items-center justify-center py-12 text-center text-admin-textMuted text-xs">
-                        <i class="fa-solid fa-cloud-arrow-down text-3xl mb-3 text-indigo-500/50"></i>
-                        <p>بانتظار قراءة السيولة والبيانات من السيرفر...</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- جدول العمليات المالية الفاخرة والمفصلة -->
-            <div class="lg:col-span-2 glass-card rounded-3xl border border-admin-border overflow-hidden flex flex-col h-full">
-                <div class="p-5 border-b border-admin-border flex flex-col sm:flex-row items-center justify-between gap-4 bg-admin-card/40">
-                    <div>
-                        <h3 class="text-sm font-black text-white flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> سجل العمليات التاريخية الحقيقي
-                        </h3>
-                        <p class="text-xs text-admin-textMuted mt-1">تتبع الحركات المالية لجميع العملاء والمحافظ لحظة بلحظة</p>
-                    </div>
-
-                    <!-- أداة الفلترة السريعة -->
-                    <div class="flex items-center gap-2 w-full sm:w-auto">
-                        <select id="filter-tx-type" onchange="filterAndRenderTransactions()" class="bg-admin-bg/80 text-admin-text px-3 py-2 rounded-xl border border-admin-border text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 w-full sm:w-auto">
-                            <option value="ALL">جميع العمليات</option>
-                            <option value="DEPOSIT">الإيداعات فقط</option>
-                            <option value="TRANSFER">التحويلات فقط</option>
-                            <option value="EXCHANGE">المصارفات فقط</option>
-                        </select>
+                <div class="portfolio-item">
+                    <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=600&q=80" alt="برمجة">
+                    <div class="portfolio-overlay">
+                        <h4>منصة تجارة إلكترونية متكاملة</h4>
+                        <p>تطوير وبرمجة مخصصة</p>
                     </div>
                 </div>
 
-                <!-- جدول العرض للعمليات المباشرة -->
-                <div class="overflow-x-auto flex-1">
-                    <table class="w-full text-right text-xs">
-                        <thead>
-                            <tr class="bg-admin-bg/60 text-admin-textMuted font-black uppercase tracking-wider border-b border-admin-border">
-                                <th class="p-4">صاحب المحفظة / العميل</th>
-                                <th class="p-4 text-center">نوع العملية</th>
-                                <th class="p-4">المبلغ المالي</th>
-                                <th class="p-4">المبلغ المحول / المستلم</th>
-                                <th class="p-4 text-center">التاريخ والتوقيت</th>
-                            </tr>
-                        </thead>
-                        <tbody id="transactions-table" class="divide-y divide-admin-border/50 font-medium">
-                            <tr>
-                                <td colspan="5" class="text-center py-16 text-admin-textMuted">
-                                    <div class="flex flex-col items-center justify-center gap-3">
-                                        <i class="fa-solid fa-network-wired text-4xl text-admin-border animate-pulse"></i>
-                                        <p class="font-bold">يرجى الضغط على زر "تحديث فوري" للمزامنة وقراءة قاعدة البيانات nabil.sqlite3</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="portfolio-item">
+                    <img src="card vision1.jpg" alt="تصميم">
+                    <div class="portfolio-overlay">
+                        <h4>هوية بصرية لشركة تقنية</h4>
+                        <p>تصميم إبداعي و UI/UX</p>
+                    </div>
                 </div>
+
+             <div class="portfolio-item">
+    <video autoplay muted loop playsinline preload="auto" style="
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* يضمن امتلاء المربع تماماً مثل الصورة دون تمطيط */
+        object-position: center;
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    ">
+        <source src="intro1.mp4" type="video/mp4">
+        المتصفح لا يدعم تشغيل الفيديو.
+    </video>
+    
+    <div class="portfolio-overlay">
+        <h4>فيديو إعلاني سينمائي</h4>
+        <p>مونتاج وإنتاج مرئي</p>
+    </div>
+</div>
+
             </div>
+        </section>
 
-        </div>
-
-        <!-- مرشد حل مشاكل الاتصال والتكامل خطوة بخطوة -->
-        <div id="troubleshoot-guide" class="glass-card p-6 rounded-3xl border border-red-500/20 bg-red-950/10 space-y-4 hidden">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-red-500/10 text-red-500 rounded-xl flex items-center justify-center border border-red-500/20 text-lg">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                </div>
-                <div>
-                    <h4 class="font-black text-white text-sm">عطل في الاتصال بخادم Django والوصول للبيانات الحقيقية!</h4>
-                    <p class="text-xs text-red-400 mt-0.5">اتبع هذه الخطوات لإصلاح المشكلة والمزامنة الفورية مع قاعدة البيانات nabil.sqlite3</p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs pt-2">
-                <div class="bg-admin-card/50 p-4 rounded-2xl border border-admin-border">
-                    <span class="text-indigo-400 font-bold block mb-1">الخطوة 1: تشغيل السيرفر</span>
-                    <p class="text-admin-textMuted mb-2">تأكد من تشغيل خادم دجانغو محلياً عبر سطر الأوامر:</p>
-                    <code class="block bg-admin-bg p-2 rounded-xl text-red-400 text-[10px] font-mono select-all">python manage.py runserver</code>
-                </div>
-                <div class="bg-admin-card/50 p-4 rounded-2xl border border-admin-border">
-                    <span class="text-indigo-400 font-bold block mb-1">الخطوة 2: تهيئة CORS في Settings</span>
-                    <p class="text-admin-textMuted mb-2">تأكد من تفعيل صلاحية CORS في ملف <code class="text-indigo-300 font-mono">settings.py</code>:</p>
-                    <code class="block bg-admin-bg p-2 rounded-xl text-red-400 text-[10px] font-mono select-all">CORS_ALLOW_ALL_ORIGINS = True</code>
-                </div>
-                <div class="bg-admin-card/50 p-4 rounded-2xl border border-admin-border">
-                    <span class="text-indigo-400 font-bold block mb-1">الخطوة 3: تفعيل صلاحيات العرض العام</span>
-                    <p class="text-admin-textMuted mb-2">تأكد من أن الكلاس في الملف <code class="text-indigo-300 font-mono">admin_views.py</code> يحتوي على:</p>
-                    <code class="block bg-admin-bg p-2 rounded-xl text-red-400 text-[10px] font-mono select-all">permission_classes = [AllowAny]</code>
-                </div>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- تذييل الصفحة -->
-    <footer class="border-t border-admin-border text-center py-8 text-xs text-admin-textMuted mt-12 bg-admin-card/10">
-        <p>© 2026 محفظة NSB الرقمية - لوحة الإشراف المتكاملة والآمنة</p>
-    </footer>
+        <footer>
+            &copy; 2026 Vision Creative Studio. جميع الحقوق محفوظة.
+        </footer>
+    </div>
 
     <script>
-        // مصفوفة الحركات المالية العالمية المخزنة محلياً عند الجلب من السيرفر للتصفية السريعة
-        let globalTransactionsList = [];
+        const video = document.getElementById('splash-video');
+        const splashScreen = document.getElementById('splash-screen');
+        const mainContent = document.getElementById('main-content');
 
-        // دالة تنظيف المسار وحمايته من مشكلة تكرار السلاشات
-        function cleanBaseUrl(url) {
-            let clean = url.trim();
-            if (clean.endsWith('/')) {
-                clean = clean.slice(0, -1);
+        function forcePlayVideo() {
+            if (video.paused) {
+                video.play().catch(err => console.log("تأمين المتصفح"));
             }
-            return clean;
         }
 
-        // دالة تسجيل الأحداث بداخل الكونسول (التيرمنال المدمج بداخل الصفحة)
-        function logToConsole(message, type = 'info') {
-            const consoleEl = document.getElementById('log-console');
-            const timeStr = new Date().toLocaleTimeString('ar-SA', { hour12: false });
+        function showMainPage(event) {
+            if(event) event.stopPropagation();
             
-            let colorClass = 'text-indigo-300';
-            let prefix = '⚙️';
+            splashScreen.style.opacity = '0';
+            splashScreen.style.visibility = 'hidden';
+            mainContent.classList.add('visible');
             
-            if (type === 'success') {
-                colorClass = 'text-emerald-400';
-                prefix = '✓';
-            } else if (type === 'error') {
-                colorClass = 'text-red-400';
-                prefix = '❌';
-            } else if (type === 'warning') {
-                colorClass = 'text-yellow-400';
-                prefix = '⚠️';
-            }
-
-            const logLine = document.createElement('div');
-            logLine.className = `${colorClass} py-0.5 border-b border-admin-border/20`;
-            logLine.innerHTML = `<span class="text-admin-textMuted font-mono font-bold mr-1">[${timeStr}]</span> <span class="font-bold">${prefix}</span> ${message}`;
-            
-            consoleEl.appendChild(logLine);
-            consoleEl.scrollTop = consoleEl.scrollHeight;
+            setTimeout(() => {
+                video.pause();
+            }, 1000);
         }
 
-        // دالة مسح الكونسول بالكامل
-        function clearLogs() {
-            document.getElementById('log-console').innerHTML = `<div class="text-admin-textMuted text-xs">تم مسح سجل الأحداث والتتبع المباشر.</div>`;
-        }
-
-        // دالة تحديث حالة متطلبات الاتصال (الـ Checklist والمؤشرات)
-        function updateChecklist(serverOk, corsOk, endpointsOk) {
-            const updateItem = (id, isActive) => {
-                const el = document.getElementById(id);
-                if (isActive) {
-                    el.className = "w-5 h-5 rounded-full flex items-center justify-center text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shrink-0";
-                    el.innerHTML = `<i class="fa-solid fa-check"></i>`;
-                } else {
-                    el.className = "w-5 h-5 rounded-full flex items-center justify-center text-[10px] bg-red-500/10 text-red-400 border border-red-500/20 shrink-0";
-                    el.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
-                }
-            };
-
-            updateItem('check-server', serverOk);
-            updateItem('check-cors', corsOk);
-            updateItem('check-endpoints', endpointsOk);
-        }
-
-        // دالة معالجة وجلب البيانات الحقيقية بالكامل من السيرفر الفعلي لدجانغو
-        async function fetchRealData() {
-            const rawUrl = document.getElementById('api-base-url').value;
-            const baseUrl = cleanBaseUrl(rawUrl);
-            const syncIcon = document.getElementById('sync-icon');
-            const guide = document.getElementById('troubleshoot-guide');
-            const pingEl = document.getElementById('ping-time');
-
-            // إعطاء مظهر التحديث الدوار للزر
-            syncIcon.classList.add('fa-spin');
-            logToConsole(`جاري محاولة الاتصال والتحقق من الرابط: ${baseUrl}/admin/stats`, 'info');
-
-            const startTime = performance.now();
-
-            try {
-                // محاولة الجلب الحقيقية والمباشرة وبدون أي تزييف
-                const statsResponse = await fetch(`${baseUrl}/admin/stats`, {
-                    method: 'GET',
-                    headers: { 'Accept': 'application/json' }
-                });
-
-                const endTime = performance.now();
-                const latency = Math.round(endTime - startTime);
-                pingEl.textContent = `${latency}ms`;
-
-                if (statsResponse.ok) {
-                    logToConsole(`تلقينا استجابة صحيحة (Status: 200 OK) بزمن استجابة ${latency}ms`, 'success');
-                    const statsData = await statsResponse.json();
-                    
-                    // جلب قائمة المعاملات الكاملة
-                    logToConsole(`جاري جلب سجل المعاملات الحقيقي من: ${baseUrl}/admin/transactions`, 'info');
-                    const txResponse = await fetch(`${baseUrl}/admin/transactions`);
-                    
-                    if (txResponse.ok) {
-                        const txData = await txResponse.json();
-                        globalTransactionsList = txData;
-                        
-                        // رسم الإحصائيات والأرصدة والمعاملات
-                        renderKPIs(statsData);
-                        renderLiquidity(statsData.balances_summary || []);
-                        filterAndRenderTransactions(); // رسم جدول المعاملات
-                        
-                        updateChecklist(true, true, true);
-                        guide.classList.add('hidden'); // إخفاء مرشد حل المشاكل في حال النجاح
-                        logToConsole(`تم جلب ومزامنة قاعدة بيانات nabil.sqlite3 الحية بنجاح تام!`, 'success');
-                    } else {
-                        logToConsole(`فشل جلب المعاملات، قد تكون صلاحيات المسار غير صحيحة.`, 'error');
-                        updateChecklist(true, true, false);
-                    }
-                } else {
-                    logToConsole(`تعذر الوصول للمسارات. السيرفر مستيقظ ولكنه رفض الطلب. كود الخطأ: ${statsResponse.status}`, 'warning');
-                    updateChecklist(true, false, false);
-                    throw new Error("سيرفر دجانغو رفض الاستجابة.");
-                }
-
-            } catch (error) {
-                console.error("عطل بالاتصال:", error);
-                pingEl.textContent = "❌";
-                logToConsole(`فشل في الاتصال كلياً: ${error.message}. تأكد من تفعيل CORS ومن تشغيل السيرفر.`, 'error');
-                
-                // تفريغ الواجهة من البيانات تماماً للتأكيد على جودة المزامنة والابتعاد عن البيانات الوهمية
-                clearAllPanels();
-                updateChecklist(false, false, false);
-                guide.classList.remove('hidden'); // إظهار مرشد المشاكل الفوري
-            } finally {
-                syncIcon.classList.remove('fa-spin');
-            }
-        }
-
-        // دالة تنظيف وتفريغ كافة كروت الإحصائيات والسيولة لمنع التزييف
-        function clearAllPanels() {
-            document.getElementById('stat-users').textContent = "❌";
-            document.getElementById('stat-wallets').textContent = "❌";
-            document.getElementById('stat-transactions').textContent = "❌";
-
-            document.getElementById('liquidity-container').innerHTML = `
-                <div class="flex flex-col items-center justify-center py-12 text-center text-red-500/80 text-xs">
-                    <i class="fa-solid fa-circle-exclamation text-3xl mb-2"></i>
-                    <p class="font-bold">قاعدة البيانات غير متصلة حياً حالياً</p>
-                    <p class="text-[10px] text-admin-textMuted mt-1">شغّل السيرفر واضغط على "تحديث فوري"</p>
-                </div>
-            `;
-
-            document.getElementById('transactions-table').innerHTML = `
-                <tr>
-                    <td colspan="5" class="text-center py-16 text-red-500/80">
-                        <div class="flex flex-col items-center justify-center gap-2">
-                            <i class="fa-solid fa-server text-3xl"></i>
-                            <p class="font-bold">تعذر سحب وعرض العمليات من nabil.sqlite3</p>
-                        </div>
-                    </td>
-                </tr>
-            `;
-        }
-
-        // رسم كروت الـ KPIs الأساسية
-        function renderKPIs(data) {
-            document.getElementById('stat-users').textContent = data.summary.total_users ?? 0;
-            document.getElementById('stat-wallets').textContent = data.summary.total_wallets ?? 0;
-            document.getElementById('stat-transactions').textContent = data.summary.total_transactions ?? 0;
-        }
-
-        // رسم كروت سيولة العملات والأرصدة المودعة حقيقية بداخل النظام
-        function renderLiquidity(balances) {
-            const container = document.getElementById('liquidity-container');
-            container.innerHTML = '';
-
-            if (balances.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-12 text-admin-textMuted text-xs">
-                        <p>لا توجد أرصدة مالية مسجلة في قاعدة البيانات حالياً.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            // خريطة لتحديد الألوان والمؤشرات حسب العملة لتصميم فخم ومتناسق
-            const currencyStyles = {
-                'USD': { bg: 'from-emerald-500/10 to-teal-500/5', border: 'border-emerald-500/20', text: 'text-emerald-400', icon: 'fa-dollar-sign' },
-                'SAR': { bg: 'from-amber-500/10 to-yellow-500/5', border: 'border-amber-500/20', text: 'text-amber-400', icon: 'fa-coins' },
-                'YER': { bg: 'from-red-500/10 to-rose-500/5', border: 'border-red-500/20', text: 'text-red-400', icon: 'fa-money-bill-wave' },
-                'EUR': { bg: 'from-blue-500/10 to-indigo-500/5', border: 'border-blue-500/20', text: 'text-blue-400', icon: 'fa-euro-sign' }
-            };
-
-            balances.forEach(item => {
-                const style = currencyStyles[item.currency] || { bg: 'from-indigo-500/10 to-purple-500/5', border: 'border-indigo-500/20', text: 'text-indigo-400', icon: 'fa-wallet' };
-                
-                const card = document.createElement('div');
-                card.className = `bg-gradient-to-br ${style.bg} p-4 rounded-2xl border ${style.border} flex items-center justify-between transition-all duration-300 hover:scale-[1.01]`;
-                card.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-admin-bg/80 flex items-center justify-center text-sm ${style.text} border ${style.border}">
-                            <i class="fa-solid ${style.icon}"></i>
-                        </div>
-                        <div>
-                            <span class="text-[10px] text-admin-textMuted font-bold uppercase tracking-wider">${item.currency} الاحتياطي</span>
-                            <h4 class="font-extrabold text-white text-sm mt-0.5">${item.currency}</h4>
-                        </div>
-                    </div>
-                    <span class="font-mono font-black text-white text-base">${parseFloat(item.total_amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        // تصفية ورسم جدول الحركات والعمليات المالية التاريخية بناء على نوع الفلتر المختار
-        function filterAndRenderTransactions() {
-            const filterType = document.getElementById('filter-tx-type').value;
-            const tableBody = document.getElementById('transactions-table');
-            tableBody.innerHTML = '';
-
-            let filteredList = globalTransactionsList;
-            if (filterType !== 'ALL') {
-                filteredList = globalTransactionsList.filter(tx => tx.transaction_type === filterType);
-            }
-
-            if (filteredList.length === 0) {
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="text-center py-12 text-admin-textMuted font-bold">
-                            لا توجد حركات مالية مطابقة للفلتر المختار حالياً.
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            filteredList.forEach(tx => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-admin-card/40 transition-all border-b border-admin-border/30";
-
-                // تنسيق شارة نوع العملية
-                let typeBadge = '';
-                if (tx.transaction_type === 'DEPOSIT') {
-                    typeBadge = `<span class="px-2.5 py-1 bg-emerald-500/10 text-emerald-400 rounded-lg text-[10px] font-black border border-emerald-500/20 inline-flex items-center gap-1"><i class="fa-solid fa-circle-arrow-down"></i> إيداع</span>`;
-                } else if (tx.transaction_type === 'TRANSFER') {
-                    typeBadge = `<span class="px-2.5 py-1 bg-blue-500/10 text-blue-400 rounded-lg text-[10px] font-black border border-blue-500/20 inline-flex items-center gap-1"><i class="fa-solid fa-paper-plane"></i> تحويل</span>`;
-                } else if (tx.transaction_type === 'EXCHANGE') {
-                    typeBadge = `<span class="px-2.5 py-1 bg-amber-500/10 text-amber-400 rounded-lg text-[10px] font-black border border-amber-500/20 inline-flex items-center gap-1"><i class="fa-solid fa-rotate"></i> مصارفة</span>`;
-                } else {
-                    typeBadge = `<span class="px-2.5 py-1 bg-gray-500/10 text-gray-400 rounded-lg text-[10px] font-black border border-gray-500/20">${tx.transaction_type}</span>`;
-                }
-
-                const name = tx.wallet_username || tx.username || "مستخدم عام";
-                const amount = tx.amount_value !== undefined ? tx.amount_value : tx.amount;
-                const currency = tx.currency_code || tx.from_currency_code || 'USD';
-                const converted = tx.converted_amount;
-                const toCurrency = tx.to_currency_code || '';
-                const date = tx.created_at || tx.date || '-';
-
-                tr.innerHTML = `
-                    <td class="p-4 font-bold text-white">${name}</td>
-                    <td class="p-4 text-center">${typeBadge}</td>
-                    <td class="p-4 font-mono font-bold text-white">${parseFloat(amount).toFixed(2)} <span class="text-admin-textMuted text-[10px]">${currency}</span></td>
-                    <td class="p-4 font-mono text-admin-text">${converted ? parseFloat(converted).toFixed(2) + ' ' + `<span class="text-indigo-400 font-bold text-[10px]">${toCurrency}</span>` : '<span class="text-admin-border">-</span>'}</td>
-                    <td class="p-4 text-center text-admin-textMuted font-semibold text-[11px]">${date}</td>
-                `;
-                tableBody.appendChild(tr);
-            });
-        }
-
-        // مستشعر الجلب التلقائي الفوري بمجرد تحميل الصفحة لتسهيل سير العمل ومطابقة الربط
-        window.onload = function() {
-            const savedUrl = localStorage.getItem('demo_api_url');
-            if (savedUrl) {
-                document.getElementById('api-base-url').value = savedUrl;
-            }
-            fetchRealData();
+        video.onended = function() {
+            showMainPage();
         };
 
-        // حفظ الرابط المعدل تلقائياً في ذاكرة المتصفح
-        document.getElementById('api-base-url').addEventListener('change', function() {
-            localStorage.setItem('demo_api_url', this.value);
-        });
+        setTimeout(() => {
+            if (splashScreen.style.visibility !== 'hidden') {
+                showMainPage();
+            }
+        }, 8000);
     </script>
 </body>
 </html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NSB Wallet - تسجيل دخول المشرف المالي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { cairo: ['Cairo', 'sans-serif'] },
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #090d16;
+        }
+        .glow-indigo {
+            box-shadow: 0 0 35px -5px rgba(99, 102, 241, 0.45);
+        }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-md bg-slate-900/60 backdrop-blur-2xl rounded-3xl border border-slate-800 p-8 glow-indigo relative overflow-hidden">
+        
+        <!-- خلفية نيون خفيفة في التصميم -->
+        <div class="absolute -top-24 -left-24 w-48 h-48 bg-indigo-600/20 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl"></div>
+
+        <div class="text-center space-y-3 relative z-10">
+            <div class="inline-flex w-16 h-14 bg-gradient-to-tr from-indigo-600 to-indigo-400 text-white rounded-2xl items-center justify-center shadow-lg shadow-indigo-500/20">
+                <i class="fa-solid fa-shield-halved text-2xl animate-pulse"></i>
+            </div>
+            <h2 class="text-xl font-black text-white">بوابة التحكم الإشرافي المركزي</h2>
+            <p class="text-xs text-slate-400">يرجى تسجيل دخول المسؤول المالي لإدارة <span class="font-mono text-indigo-400">nabil.sqlite3</span></p>
+        </div>
+
+        {% if error_message %}
+        <div class="mt-6 p-4 bg-red-950/20 border border-red-500/30 text-red-400 rounded-2xl text-xs font-semibold flex items-center gap-2.5">
+            <i class="fa-solid fa-circle-exclamation text-base"></i>
+            <span>{{ error_message }}</span>
+        </div>
+        {% endif %}
+
+        <form method="POST" class="mt-8 space-y-5 relative z-10">
+            {% csrf_token %}
+            
+            <div class="space-y-1.5">
+                <label class="text-xs font-bold text-slate-400">اسم مستخدم المسؤول (Admin Username)</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 right-4 flex items-center text-slate-500 text-sm">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </span>
+                    <input type="text" name="username" required class="w-full pr-11 pl-4 py-3.5 bg-slate-950/80 border border-slate-800 focus:border-indigo-500/50 rounded-2xl text-xs text-white focus:outline-none transition-all placeholder:text-slate-600" placeholder="اسم حساب الـ Superuser">
+                </div>
+            </div>
+
+            <div class="space-y-1.5">
+                <label class="text-xs font-bold text-slate-400">كلمة المرور الآمنة (Password)</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 right-4 flex items-center text-slate-500 text-sm">
+                        <i class="fa-solid fa-key"></i>
+                    </span>
+                    <input type="password" name="password" required class="w-full pr-11 pl-4 py-3.5 bg-slate-950/80 border border-slate-800 focus:border-indigo-500/50 rounded-2xl text-xs text-white focus:outline-none transition-all placeholder:text-slate-600" placeholder="••••••••">
+                </div>
+            </div>
+
+            <button type="submit" class="w-full py-4 mt-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-xs font-bold transition-all shadow-lg shadow-indigo-500/20 active:scale-[0.98]">
+                تخطي والولوج الآمن للنظام المركزي
+            </button>
+        </form>
+
+        <div class="mt-6 text-center text-[10px] text-slate-500">
+            <p>لوحة تحكم مشفرة ومحمية بالكامل © 2026</p>
+        </div>
+    </div>
+
+</body>
+</html>

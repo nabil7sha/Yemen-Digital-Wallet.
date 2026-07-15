@@ -10,7 +10,7 @@ from .models import Profile, Wallet, WalletBalance, Currency
 from .auth_serializers import RegisterSerializer, ProfileSerializer
 
 class RegisterView(views.APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
@@ -56,7 +56,7 @@ class RegisterView(views.APIView):
 
 
 class LoginView(views.APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         username = request.data.get('username')

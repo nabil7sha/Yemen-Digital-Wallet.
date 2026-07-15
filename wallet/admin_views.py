@@ -1,6 +1,8 @@
 from rest_framework import views, status
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny  # السماح بالوصول العام المفتوح لتسهيل العرض المباشر
+from rest_framework.permissions import IsAuthenticated  # 🔐 قصر الوصول فقط على الموثقين
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication  # 🌐 دعم جلسات المتصفح المباشرة
+from rest_framework_simplejwt.authentication import JWTAuthentication  # 🔐 دعم الرموز المشفرة لـ APIs
 from django.contrib.auth.models import User
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
@@ -9,9 +11,11 @@ from .models import Wallet, WalletBalance, Transaction, Currency, ExchangeRate
 
 class AdminDashboardStatsView(views.APIView):
     """
-    واجهة برمجية لجلب إحصائيات قاعدة البيانات (nabil.sqlite3) العامة بشكل حي ومباشر
+    واجهة برمجية لجلب إحصائيات قاعدة البيانات (nabil.sqlite3) العامة بشكل آمن ومحمي.
+    تدعم التحقق عبر جلسة المتصفح النشطة للأدمن أو عبر رمز JWT المالي.
     """
-    permission_classes = [AllowAny]
+    authentication_classes = [SessionAuthentication, JWTAuthentication]  # 👈 دعم الجلسة والتوكن معاً
+    permission_classes = [IsAuthenticated]  # 🔐 حماية المسار
 
     def get(self, request):
         try:
@@ -50,12 +54,13 @@ class AdminDashboardStatsView(views.APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-
 class AdminGlobalTransactionsView(views.APIView):
     """
-    واجهة برمجية لجلب كافة الحركات التاريخية المسجلة لجميع المحافظ والعملاء حياً ومباشراً
+    واجهة برمجية لجلب كافة الحركات التاريخية المسجلة لجميع المحافظ والعملاء بشكل آمن ومحمي.
+    تدعم التحقق المزدوج لمنع أي اختراق لبيانات العملاء.
     """
-    permission_classes = [AllowAny]
+    authentication_classes = [SessionAuthentication, JWTAuthentication]  # 👈 دعم الجلسة والتوكن معاً
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         try:
@@ -94,12 +99,12 @@ class AdminGlobalTransactionsView(views.APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-
 class AdminExchangeRateView(views.APIView):
     """
-    جلب وتحديث أسعار الصرف حياً ومباشراً من لوحة تحكم الأدمن
+    جلب وتحديث أسعار الصرف بشكل آمن ومحمي لمنع التلاعب بأسعار البنك.
     """
-    permission_classes = [AllowAny]
+    authentication_classes = [SessionAuthentication, JWTAuthentication]  # 👈 دعم الجلسة والتوكن معاً
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         try:
@@ -118,6 +123,10 @@ class AdminExchangeRateView(views.APIView):
             return Response({"error": f"فشل جلب أسعار الصرف: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request):
+        # التحقق الإضافي للتأكد من أن هذا المسؤول هو سوبر يوزر مالي فعلياً لحماية الصرف
+        if not request.user.is_superuser:
+            return Response({"error": "عذراً! لا تمتلك الصلاحيات الإشرافية لتغيير أسعار صرف البنك."}, status=status.HTTP_403_FORBIDDEN)
+
         from_code = request.data.get('from_currency')
         to_code = request.data.get('to_currency')
         rate_value = request.data.get('rate')
@@ -136,7 +145,7 @@ class AdminExchangeRateView(views.APIView):
                 defaults={"rate": Decimal(str(rate_value))}
             )
 
-            # Best Practice: تحديث سعر الصرف العكسي تلقائياً لتسهيل وتبسيط العمليات الثنائية
+            # تحديث سعر الصرف العكسي تلقائياً لتسهيل وتبسيط العمليات الثنائية
             try:
                 inverse_rate = Decimal("1") / Decimal(str(rate_value))
                 ExchangeRate.objects.update_or_create(

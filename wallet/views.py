@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test  # 🔐 استيراد حارس المسؤولين والجلسات
 from django.db.models import Q, Sum
 from rest_framework import views, status
 from rest_framework.response import Response
@@ -10,15 +10,61 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from decimal import Decimal
 from .models import Wallet, WalletBalance, Transaction, Currency, ExchangeRate
 
-
-def user_login_page_view(request):
-    """رندرة صفحة تسجيل الدخول الفاخرة للعملاء"""
+def custom_login_view(request):
+    """رندرة ومعالجة صفحة تسجيل الدخول الفاخرة للعملاء"""
     if request.user.is_authenticated:
+        if request.user.is_superuser:
+            return redirect('admin_dashboard_luminous')
         return redirect('user_dashboard_luminous')
-    return render(request, 'wallet/login.html')
+        
+    error_message = None
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            login(request, user)  # تسجيل الدخول في نظام Django للجلسات
+            return redirect('user_dashboard_luminous')
+        else:
+            error_message = "اسم المستخدم أو كلمة المرور غير صحيحة!"
+            
+    return render(request, 'wallet/login.html', {'error_message': error_message})
 
 
-@login_required(login_url='user_login_page')
+def custom_logout_view(request):
+    """تسجيل خروج العميل وتصفية الجلسة بالكامل"""
+    logout(request)
+    return redirect('user_login_luminous')
+
+
+def admin_login_view(request):
+    """رندرة ومعالجة صفحة تسجيل دخول الأدمن والمشرفين (Superuser)"""
+    if request.user.is_authenticated and request.user.is_superuser:
+        return redirect('admin_dashboard_luminous')
+        
+    error_message = None
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        user = authenticate(username=username, password=password)
+        if user is not None and user.is_superuser:
+            login(request, user)  # تسجيل دخول المسؤول في الجلسة
+            return redirect('admin_dashboard_luminous')
+        else:
+            error_message = "عذراً! لا تملك الصلاحيات الإشرافية المطلوبة أو البيانات خاطئة."
+            
+    return render(request, 'wallet/admin_login.html', {'error_message': error_message})
+
+
+def admin_logout_view(request):
+    """تسجيل خروج الأدمن وتوجيهه لشاشة الدخول المخصصة للمسؤولين"""
+    logout(request)
+    return redirect('admin_login_luminous')
+
+
+@login_required(login_url='user_login_luminous')  # 🔐 حماية المسار وتوجيهه لصفحة الدخول المناسبة
 def user_dashboard_template_view(request):
     """رندرة لوحة التحكم للعملاء مع الـ Context الآمن"""
     user = request.user  # الحصول على المستخدم الفعلي المسجل دخوله بأمان
@@ -45,8 +91,9 @@ def user_dashboard_template_view(request):
     return render(request, 'wallet/dashboard.html', context)
 
 
+@user_passes_test(lambda u: u.is_superuser, login_url='admin_login_luminous')  # 🔐 قصر التصفح فقط على الأدمن المالي
 def admin_dashboard_template_view(request):
-    """رندرة لوحة تحكم المسؤول (الأدمن)"""
+    """رندرة لوحة تحكم المسؤول (الأدمن) بعد التأكد من رتبته الإشرافية"""
     total_users = User.objects.count()
     total_wallets = Wallet.objects.count()
     total_transactions = Transaction.objects.count()
@@ -75,18 +122,11 @@ def admin_dashboard_template_view(request):
     return render(request, 'wallet/admin_dashboard.html', context)
 
 
-def user_logout_view(request):
-    """تسجيل خروج المستخدم بالكامل وتصفية الجلسة"""
-    logout(request)
-    return redirect('user_login_page')
-
-
-
 class DualLoginView(views.APIView):
     """
     واجهة تسجيل دخول مزدوجة:
     1. تقوم بإنشاء جلسة Django (Session Cookie) لخدمة رندرة قوالب الـ HTML.
-    2. تقوم بتوليد JWT Token (Access & Refresh) لخدمة وتأمين طلبات الـ APIs المالية.
+    2. تقوم بتوليد JWT Token (Access & Refresh) لخدمة وتأمين طلبات الـ APIs المالية والرقابية.
     """
     permission_classes = [AllowAny]
 
@@ -105,7 +145,8 @@ class DualLoginView(views.APIView):
                 "access": str(refresh.access_token),
                 "refresh": str(refresh),
                 "username": user.username,
-                "email": user.email
+                "email": user.email,
+                "is_superuser": user.is_superuser  # إبلاغ الواجهة الأمامية بالرتبة الإشرافية
             }, status=status.HTTP_200_OK)
             
         return Response({"error": "اسم المستخدم أو كلمة المرور غير صحيحة!"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -120,7 +161,6 @@ class DepositView(views.APIView):
         amount = request.data.get('amount')
         
         try:
-            # قراءة اسم المستخدم بأمان من رمز الـ JWT المشفر دون الاعتماد على طلبات الواجهة
             user = request.user 
             wallet, _ = Wallet.objects.get_or_create(user=user)
             currency = get_object_or_404(Currency, code=currency_code)
