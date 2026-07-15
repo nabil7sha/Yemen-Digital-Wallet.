@@ -45,7 +45,6 @@
                     <i class="fa-solid fa-wallet text-2xl"></i>
                 </div>
                 <div>
-                    <!-- رندرة اسم المستخدم والبريد حركياً من الـ Context المباشر للسيرفر -->
                     <h1 class="text-xl font-bold text-slate-900 tracking-tight">محفظة {{ active_user.username }} الرقمية</h1>
                     <p class="text-xs text-slate-500 font-medium">البريد الإلكتروني المسجل: {{ active_user.email }}</p>
                 </div>
@@ -55,7 +54,7 @@
                 <!-- منتقي مستخدمين حي: يقوم بإعادة تحميل الصفحة وتغيير الرندرة مع الـ Context تلقائياً -->
                 <div class="bg-slate-100 p-1.5 rounded-xl flex items-center border border-slate-200 text-xs gap-1.5">
                     <span class="text-slate-500 font-bold px-1">العميل الحالي:</span>
-                    <select id="active-user-selector" onchange="location.href='?username=' + this.value" class="bg-white rounded-lg px-3 py-1 font-bold text-blue-600 focus:outline-none cursor-pointer border border-slate-200">
+                    <select id="active-user-selector" onchange="switchUser(this.value)" class="bg-white rounded-lg px-3 py-1 font-bold text-blue-600 focus:outline-none cursor-pointer border border-slate-200">
                         {% for u in all_users %}
                         <option value="{{ u.username }}" {% if u.username == active_user.username %}selected{% endif %}>{{ u.username }}</option>
                         {% endfor %}
@@ -63,8 +62,8 @@
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <button onclick="location.reload()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-xl text-xs font-bold transition-colors shadow-sm">
-                        <i class="fa-solid fa-sync"></i> تحديث حركي
+                    <button onclick="handleLogout()" class="bg-red-500/10 text-red-600 hover:bg-red-500 hover:text-white px-4 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm">
+                        <i class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج
                     </button>
                 </div>
             </div>
@@ -75,12 +74,12 @@
 
         <div class="bg-slate-900 text-slate-300 p-3.5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-2 font-mono text-xs border border-slate-800 shadow-inner">
             <div class="flex items-center gap-2">
-                <span class="bg-emerald-500 text-white px-2 py-0.5 rounded font-bold text-[10px]">SERVER RENDERED</span>
-                <span class="text-slate-400">حالة العرض: <strong class="text-blue-400">رندرة مباشرة مع الـ Context (نشط)</strong></span>
+                <span class="bg-emerald-500 text-white px-2 py-0.5 rounded font-bold text-[10px]">JWT SECURED</span>
+                <span class="text-slate-400">حالة التوثيق: <strong class="text-blue-400">مشفر ومحمي برمز JWT Bearer Token (نشط)</strong></span>
             </div>
             <div>
                 <span class="inline-flex items-center gap-1.5 text-emerald-400 font-bold">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span> تم توليد الصفحة بالكامل داخل خادم Django بنجاح!
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> اتصال مالي مشفر وموثق 100%
                 </span>
             </div>
         </div>
@@ -148,7 +147,7 @@
             <!-- أزرار تنفيذ العمليات المالية -->
             <div class="space-y-4">
                 <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                    <span class="w-1.5 h-4 bg-blue-600 rounded-full"></span> تنفيذ حركة مالية فورية
+                    <span class="w-1.5 h-4 bg-blue-600 rounded-full"></span> تنفيذ حركة مالية آمنة
                 </h2>
                 <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex flex-col gap-3">
                     <!-- زر إيداع -->
@@ -326,22 +325,40 @@
     <div id="toast-container" class="fixed bottom-6 left-6 z-50 flex flex-col gap-3"></div>
 
     <script>
+
         // سحب اسم المستخدم النشط المرندر بداخل الـ Context تلقائياً من خادم دجانغو
         const activeUser = "{{ active_user.username }}";
         let activeTransactionType = 'deposit';
 
-        // دالة تحديد الرابط الذكي والمقاوم للأخطاء
-        function getBaseUrl() {
-            // التحقق هل الصفحة مفتوحة من سيرفر دجانغو الفعلي أم من مجلد محلي
-            if (window.location.port === '8000' || window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
-                return '/api'; // استخدام مسار نسبي آمن للغاية داخل السيرفر
+        // دالة التحقق الأمني من الـ JWT
+        function checkAuthentication() {
+            const token = localStorage.getItem('nsb_access_token');
+            const savedUser = localStorage.getItem('nsb_username');
+            
+            // إذا لم يتم العثور على التوكن، أو أن المستخدم المسجل يختلف عن مستخدم الجلسة الحالي
+            if (!token || savedUser !== activeUser) {
+                showToast("الرجاء تسجيل الدخول أولاً للوصول للمحفظة.", "error");
+                setTimeout(() => {
+                    handleLogout();
+                }, 1000);
+                return false;
             }
-            return 'http://127.0.0.1:8000/api'; // السيرفر الافتراضي في حال الفتح كملف مستقل
+            return true;
+        }
+
+        function handleLogout() {
+            // تنظيف البيانات المحلية وتوجيه المستخدم لتسجيل الخروج الفعلي
+            localStorage.clear();
+            window.location.href = '/api/logout';
+        }
+
+        function switchUser(targetUsername) {
+            // عند تبديل المستخدم، نقوم بتسجيل الخروج لطلب تسجيل دخول جديد وحماية الجلسة
+            handleLogout();
         }
 
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
-            if (!container) return;
             const toast = document.createElement('div');
             const bgClass = type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-800 font-medium' : 'bg-red-50 border-red-200 text-red-800 font-medium';
             const icon = type === 'success' ? 'fa-circle-check text-emerald-500' : 'fa-triangle-exclamation text-red-500';
@@ -354,10 +371,12 @@
             setTimeout(() => {
                 toast.classList.add('translate-y-6', 'opacity-0');
                 setTimeout(() => toast.remove(), 300);
-            }, 5000);
+            }, 3000);
         }
 
         function openTransactionModal(type) {
+            if (!checkAuthentication()) return;
+            
             activeTransactionType = type;
             const modal = document.getElementById('transaction-modal');
             const container = document.getElementById('modal-container');
@@ -373,21 +392,21 @@
 
             if (type === 'deposit') {
                 title.textContent = "إيداع مالي فوري";
-                subtitle.textContent = "تغذية رصيد حساب العميل الحالي مباشرة بحركة مالية حقيقية.";
+                subtitle.textContent = "تغذية رصيد حسابك بشكل آمن وموثق بالكامل.";
                 iconBg.className = "w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg";
                 icon.className = "fa-solid fa-circle-arrow-down";
                 fieldReceiver.classList.add('hidden');
                 fieldToCurrency.classList.add('hidden');
             } else if (type === 'transfer') {
                 title.textContent = "تحويل فوري ومباشر لعميل آخر";
-                subtitle.textContent = "إرسال الأموال فوراً من حساب العميل الحالي إلى حساب عميل نشط بضغطة واحدة.";
+                subtitle.textContent = "إرسال الأموال فوراً وبصورة مشفرة لعميل آخر بالنظام.";
                 iconBg.className = "w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-lg";
                 icon.className = "fa-solid fa-paper-plane";
                 fieldReceiver.classList.remove('hidden');
                 fieldToCurrency.classList.add('hidden');
             } else if (type === 'exchange') {
                 title.textContent = "تبديل ومصارفة عملات حية";
-                subtitle.textContent = "صرف الرصيد من عملة معينة إلى عملة أخرى تملكها في نفس المحفظة بنجاح.";
+                subtitle.textContent = "صرف وتبديل عملات محفظتك بأسعار الصرف الرسمية.";
                 iconBg.className = "w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center text-lg";
                 icon.className = "fa-solid fa-rotate";
                 fieldReceiver.classList.add('hidden');
@@ -408,41 +427,24 @@
         async function handleTransactionSubmit(event) {
             event.preventDefault();
 
-            // فحص أمني: هل يتم تشغيل الصفحة عبر السيرفر؟
-            if (activeUser.startsWith('{{') || activeUser.trim() === '') {
-                showToast("تنبيه هام: أنت تقوم بفتح الملف محلياً من جهازك وليس عبر السيرفر! يرجى الدخول عبر الرابط: http://127.0.0.1:8000/api/dashboard", "error");
-                return;
-            }
+            if (!checkAuthentication()) return;
 
             const currencyCode = document.getElementById('tx-currency').value;
             const amount = parseFloat(document.getElementById('tx-amount').value);
             const receiverUsername = document.getElementById('tx-receiver').value;
             const toCurrencyCode = document.getElementById('tx-to-currency').value;
             
-            const baseUrl = getBaseUrl();
-
-            if (isNaN(amount) || amount <= 0) {
-                showToast("يرجى إدخال مبلغ مالي صحيح أكبر من الصفر.", "error");
-                return;
-            }
+            const token = localStorage.getItem('nsb_access_token');
 
             let endPoint = '';
-            let payload = { username: activeUser };
+            let payload = {};
 
             if (activeTransactionType === 'deposit') {
-                endPoint = `${baseUrl}/deposit`;
+                endPoint = '/api/deposit';
                 payload.currency_code = currencyCode;
                 payload.amount = amount;
             } else if (activeTransactionType === 'transfer') {
-                if (!receiverUsername) {
-                    showToast("يرجى اختيار العميل المستلم لإتمام عملية التحويل.", "error");
-                    return;
-                }
-                if (activeUser === receiverUsername) {
-                    showToast("لا يمكنك تحويل الأموال إلى نفسك!", "error");
-                    return;
-                }
-                endPoint = `${baseUrl}/transfer`;
+                endPoint = '/api/transfer';
                 payload.receiver_username = receiverUsername;
                 payload.currency_code = currencyCode;
                 payload.amount = amount;
@@ -451,38 +453,52 @@
                     showToast("يرجى اختيار عملات مختلفة للمصارفة.", "error");
                     return;
                 }
-                endPoint = `${baseUrl}/exchange`;
+                endPoint = '/api/exchange';
                 payload.from_currency_code = currencyCode;
                 payload.to_currency_code = toCurrencyCode;
                 payload.amount = amount;
             }
 
-            showToast("جاري إرسال العملية ومعالجتها في السيرفر...", "success");
-
             try {
+                // إرسال الطلب المالي مع إلحاق الـ JWT Token في الـ Headers بأعلى معايير الأمان
                 const response = await fetch(endPoint, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}` // تذكرة الأمان المشفرة
+                    },
                     body: JSON.stringify(payload)
                 });
 
                 if (response.ok) {
-                    showToast("تم تنفيذ العملية وحفظها حياً في nabil.sqlite3!", "success");
+                    showToast("تمت معالجة وحفظ العملية المالية بنجاح تام!", "success");
                     closeTransactionModal();
                     
-                    // إعادة تحميل الصفحة لإعادة رندرة البيانات بالـ Context الجديد
+                    // إعادة تحميل الصفحة لتحديث الـ Context الآمن
                     setTimeout(() => {
                         location.reload();
                     }, 1000);
                 } else {
                     const resData = await response.json();
-                    showToast(resData.error || resData.detail || "تعذر إتمام العملية المالية. قد يكون الرصيد غير كافٍ.", "error");
+                    
+                    // إذا انتهت صلاحية الـ Token (يرسل السيرفر كود 401)
+                    if (response.status === 401 || response.status === 403) {
+                        showToast("انتهت صلاحية جلسة الأمان! الرجاء تسجيل الدخول مجدداً.", "error");
+                        setTimeout(() => { handleLogout(); }, 1500);
+                    } else {
+                        showToast(resData.error || resData.detail || "تعذر إتمام العملية المالية.", "error");
+                    }
                 }
             } catch (err) {
                 console.error(err);
-                showToast(`فشل المعاملة الماليّة: ${err.message}`, "error");
+                showToast("فشل الاتصال بخادم العمليات المالي.", "error");
             }
         }
+
+        // مستشعر تحميل الصفحة الذكي لفحص الأمان
+        window.onload = function() {
+            checkAuthentication();
+        };
     </script>
 </body>
 </html>

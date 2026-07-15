@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
+from datetime import timedelta
 
 from pathlib import Path
 
@@ -105,6 +106,8 @@ REST_FRAMEWORK = {
     # إعداد نظام المصادقة بالـ Token الذي بنينا عليه التطبيق
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
+                   'rest_framework_simplejwt.authentication.JWTAuthentication',
+
     ],
 }
 # Password validation
@@ -142,3 +145,29 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+SIMPLE_JWT = {
+    # ⏱️ عمر الـ Access Token (الرمز المستخدم لتصريح العمليات المالية الفورية)
+    # نوصي بـ 15 دقيقة في بيئة الإنتاج، أو 5 دقائق لأغراض الفحص والاختبار السريع
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=3),
+    
+    # ⏱️ عمر الـ Refresh Token (الرمز المستخدم لتوليد Access Token جديد تلقائياً دون تسجيل خروج)
+    # نوصي بـ 7 أيام ليظل المستخدم مسجلاً دخوله بشكل مريح على جهازه
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    
+    # تدوير التوكنات لزيادة الأمان
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+SESSION_COOKIE_AGE = 180  
+
+# 💻 جعل الجلسة تنتهي تلقائياً فور إغلاق المستخدم للمتصفح
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# 🔄 تحديث عمر الجلسة تلقائياً مع كل حركة أو نشاط يقوم به المستخدم (لعدم طرده أثناء الاستخدام النشط)
+SESSION_SAVE_EVERY_REQUEST = True
