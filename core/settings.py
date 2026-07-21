@@ -171,3 +171,16 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # 🔄 تحديث عمر الجلسة تلقائياً مع كل حركة أو نشاط يقوم به المستخدم (لعدم طرده أثناء الاستخدام النشط)
 SESSION_SAVE_EVERY_REQUEST = True
+# ⏱️ تعيين مسار تسجيل الدخول الافتراضي للعملاء باستخدام اسم المسار
+LOGIN_URL = 'user_login_luminous'
+
+# ⏱️ إعدادات خادم Celery و Redis
+# نحدد هنا رابط الاتصال بالخادم المحلي لـ Redis (يعمل افتراضياً على البورت 6379)
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+
+# إعدادات إضافية لتنظيم معالجة البيانات وتفادي الأخطاء
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'

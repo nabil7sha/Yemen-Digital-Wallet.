@@ -9,6 +9,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from decimal import Decimal
 from .models import Wallet, WalletBalance, Transaction, Currency, ExchangeRate
+from .tasks import update_global_exchange_rates_background
 
 def custom_login_view(request):
     """رندرة ومعالجة صفحة تسجيل الدخول الفاخرة للعملاء"""
@@ -121,6 +122,16 @@ def admin_dashboard_template_view(request):
     }
     return render(request, 'wallet/admin_dashboard.html', context)
 
+class TriggerRateUpdateView(views.APIView):
+    """واجهة تطلق عملية التحديث الثقيلة في الخلفية فوراً"""
+    def post(self, request):
+        # 🔥 إطلاق المهمة في الخلفية باستخدام .delay()
+        # سيتولى Celery تنفيذها في الخلفية بينما يرد دجانغو على العميل فوراً في 0.001 ثانية!
+        update_global_exchange_rates_background.delay() 
+        
+        return Response({
+            "success": "تم إرسال طلب تحديث الأسعار للمطبخ البرمجي بنجاح! جاري التحديث في الخلفية."
+        }, status=status.HTTP_202_ACCEPTED) 
 
 class DualLoginView(views.APIView):
     """
@@ -257,6 +268,7 @@ class ExchangeView(views.APIView):
             
             Transaction.objects.create(
                 wallet=wallet,
+               
                 transaction_type='EXCHANGE',
                 from_currency=from_currency,
                 to_currency=to_currency,

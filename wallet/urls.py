@@ -4,11 +4,12 @@ from .views import (
     admin_dashboard_template_view,      # دالة رندرة لوحة الإدارة (مؤمنة)
     custom_login_view,                  # دالة تسجيل دخول العميل
     custom_logout_view,                 # دالة تسجيل خروج العميل
-    admin_login_view,                   # دالة تسجيل دخول الأدمن الجديدة 👈
-    admin_logout_view,                  # دالة تسجيل خروج الأدمن الجديدة 👈
+    admin_login_view,                   # دالة تسجيل دخول الأدمن
+    admin_logout_view,                  # دالة تسجيل خروج الأدمن
     DepositView, 
     TransferView, 
-    ExchangeView
+    ExchangeView,
+    DualLoginView,                      # واجهة تسجيل الدخول المزدوج (جلسة + JWT)
 )
 from .admin_views import (
     AdminDashboardStatsView, 
@@ -17,7 +18,7 @@ from .admin_views import (
 )
 
 urlpatterns = [
-    # 🌐 مسارات رندرة الصفحات المباشرة مع الـ Context من الخادم (Server Rendered)
+    # 🌐 مسارات رندرة الصفحات المباشرة (دون سلاش بادئ لمنع التحذيرات)
     path('dashboard', user_dashboard_template_view, name='user_dashboard_luminous'),
     path('admin-dashboard', admin_dashboard_template_view, name='admin_dashboard_luminous'),
     
@@ -25,9 +26,12 @@ urlpatterns = [
     path('login', custom_login_view, name='user_login_luminous'),
     path('logout', custom_logout_view, name='user_logout_luminous'),
 
-    # 🔐 مسارات التوثيق والـ Auth للإدارة (الأدمن) الجديدة 👈
+    # 🔐 مسارات التوثيق والـ Auth للإدارة (الأدمن) 
     path('admin-login', admin_login_view, name='admin_login_luminous'),
     path('admin-logout', admin_logout_view, name='admin_logout_luminous'),
+
+    # 🔐 مسار تسجيل الدخول عبر API (JWT) - تستخدمه صفحة login.html
+    path('auth/login', DualLoginView.as_view(), name='auth_login_api'),
 
     # --- واجهات العمليات المالية للعملاء (APIs) ---
     path('deposit', DepositView.as_view(), name='wallet_deposit_api'),
