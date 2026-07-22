@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'drf_spectacular', # الحزمة الجديدة
     'wallet',
     'corsheaders',
+    'django_celery_beat'
 ]
 
 MIDDLEWARE = [
